@@ -1,0 +1,25 @@
+ 1  PRINT : PRINT : PRINT : PRINT  CHR$ (4);"CATALOG"
+ 2  INPUT A,B
+ 3  PRINT  CHR$ (4);"BLOAD TOWNPIC.";A;" ";B;",A25000
+ 4 L$ = "":I = 0
+ 5 M =  PEEK (25800 + I)
+ 6  IF M = 0 THEN 9
+ 7 L$ = L$ +  CHR$ (M)
+ 8 I = I + 1: GOTO 5
+ 9  PR# 1: PRINT L$
+ 10  FOR A = 25850 + 800 TO 25850 + 800 + (120 * 6) STEP 120
+ 11 L$ = ""
+ 12 MM =  FRE (0)
+ 20 I = 0
+ 30 M =  PEEK (A + I)
+ 35 MM =  FRE (0)
+ 40  IF M = 0 THEN 100
+ 45  IF M < 25 THEN 60
+ 51 L$ = L$ +  CHR$ (M)
+ 60 I = I + 1: GOTO 30
+ 100  REM 
+ 117  PRINT L$
+ 120  NEXT 
+ 125  PRINT 
+ 130  PR# 0
+ 140  END 

@@ -1,0 +1,6 @@
+ 10  FOR L = 19 TO 19
+ 20 BY = ((L - 1) * 24) + 2048
+ 22  FOR I = BY TO BY + 23
+ 30  POKE I - 24, PEEK (I)
+ 40  NEXT I
+ 50  NEXT L
