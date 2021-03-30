@@ -1,0 +1,831 @@
+1868-   AD FF 1F    LDA   $1FFF
+186B-   C9 70       CMP   #$70
+186D-   10 0A       BPL   $1879
+186F-   C9 00       CMP   #$00
+1871-   30 06       BMI   $1879
+1873-   A9 14       LDA   #$14
+1875-   8D FD 1F    STA   $1FFD
+1878-   60          RTS
+1879-   A9 10       LDA   #$10
+187B-   8D FD 1F    STA   $1FFD
+187E-   60          RTS
+187F-   00          BRK
+1880-   A9 A0       LDA   #$A0
+1882-   8D 6E 1D    STA   $1D6E
+1885-   A9 1D       LDA   #$1D
+1887-   8D 6F 1D    STA   $1D6F
+188A-   A9 34       LDA   #$34
+188C-   8D FE 1D    STA   $1DFE
+188F-   EA          NOP
+1890-   A9 00       LDA   #$00
+1892-   8D FA 1D    STA   $1DFA
+1895-   A9 01       LDA   #$01
+1897-   8D 60 1D    STA   $1D60
+189A-   8D E9 1D    STA   $1DE9
+189D-   8D 6A 1D    STA   $1D6A
+18A0-   A9 03       LDA   #$03
+18A2-   8D 59 1D    STA   $1D59
+18A5-   8D F0 1D    STA   $1DF0
+18A8-   A9 04       LDA   #$04
+18AA-   8D DA 1E    STA   $1EDA
+18AD-   8D D6 1E    STA   $1ED6
+18B0-   A9 10       LDA   #$10
+18B2-   8D D7 1E    STA   $1ED7
+18B5-   A9 30       LDA   #$30
+18B7-   8D DB 1E    STA   $1EDB
+18BA-   20 70 1C    JSR   $1C70
+18BD-   A9 00       LDA   #$00
+18BF-   8D 6A 1D    STA   $1D6A
+18C2-   A9 01       LDA   #$01
+18C4-   8D 59 1D    STA   $1D59
+18C7-   8D F0 1D    STA   $1DF0
+18CA-   8D FA 1D    STA   $1DFA
+18CD-   A9 03       LDA   #$03
+18CF-   8D 60 1D    STA   $1D60
+18D2-   8D E9 1D    STA   $1DE9
+18D5-   8D D6 1E    STA   $1ED6
+18D8-   A9 04       LDA   #$04
+18DA-   8D DA 1E    STA   $1EDA
+18DD-   A9 10       LDA   #$10
+18DF-   8D DB 1E    STA   $1EDB
+18E2-   A9 30       LDA   #$30
+18E4-   8D D7 1E    STA   $1ED7
+18E7-   A9 CC       LDA   #$CC
+18E9-   8D 6E 1D    STA   $1D6E
+18EC-   4C 08 19    JMP   $1908
+18EF-   EA          NOP
+18F0-   4C 13 19    JMP   $1913
+18F3-   A9 00       LDA   #$00
+18F5-   8D FA 1F    STA   $1FFA
+18F8-   AD FB 1F    LDA   $1FFB
+18FB-   C9 10       CMP   #$10
+18FD-   F0 06       BEQ   $1905
+18FF-   20 70 1C    JSR   $1C70
+1902-   4C 55 19    JMP   $1955
+1905-   4C 80 18    JMP   $1880
+1908-   8D FE 1D    STA   $1DFE
+190B-   A9 1E       LDA   #$1E
+190D-   8D 6F 1D    STA   $1D6F
+1910-   4C 55 19    JMP   $1955
+1913-   20 24 1A    JSR   $1A24
+1916-   C9 02       CMP   #$02
+1918-   F0 34       BEQ   $194E
+191A-   C9 04       CMP   #$04
+191C-   F0 30       BEQ   $194E
+191E-   C9 08       CMP   #$08
+1920-   F0 2C       BEQ   $194E
+1922-   C9 05       CMP   #$05
+1924-   F0 28       BEQ   $194E
+1926-   C9 05       CMP   #$05
+1928-   F0 24       BEQ   $194E
+192A-   C9 06       CMP   #$06
+192C-   F0 20       BEQ   $194E
+192E-   C9 05       CMP   #$05
+1930-   F0 1C       BEQ   $194E
+1932-   4C F3 18    JMP   $18F3
+1935-   20 24 1A    JSR   $1A24
+1938-   C9 04       CMP   #$04
+193A-   F0 0F       BEQ   $194B
+193C-   C9 0B       CMP   #$0B
+193E-   F0 0B       BEQ   $194B
+1940-   C9 0E       CMP   #$0E
+1942-   F0 07       BEQ   $194B
+1944-   C9 07       CMP   #$07
+1946-   F0 03       BEQ   $194B
+1948-   4C 4E 19    JMP   $194E
+194B-   4C F3 18    JMP   $18F3
+194E-   A9 10       LDA   #$10
+1950-   8D FA 1F    STA   $1FFA
+1953-   60          RTS
+1954-   FF          ???
+1955-   CE FF 1F    DEC   $1FFF
+1958-   CE FF 1F    DEC   $1FFF
+195B-   CE FF 1F    DEC   $1FFF
+195E-   CE FF 1F    DEC   $1FFF
+1961-   CE FE 1F    DEC   $1FFE
+1964-   CE FE 1F    DEC   $1FFE
+1967-   A9 03       LDA   #$03
+1969-   8D FE 1C    STA   $1CFE
+196C-   A9 05       LDA   #$05
+196E-   8D FF 1C    STA   $1CFF
+1971-   A9 00       LDA   #$00
+1973-   8D FC 1F    STA   $1FFC
+1976-   A9 80       LDA   #$80
+1978-   8D FD 1F    STA   $1FFD
+197B-   EA          NOP
+197C-   EA          NOP
+197D-   EA          NOP
+197E-   EA          NOP
+197F-   EE FF 1C    INC   $1CFF
+1982-   EE FF 1C    INC   $1CFF
+1985-   20 84 1F    JSR   $1F84
+1988-   AD F9 1F    LDA   $1FF9
+198B-   C9 01       CMP   #$01
+198D-   F0 03       BEQ   $1992
+198F-   4C A5 19    JMP   $19A5
+1992-   20 AD 1B    JSR   $1BAD
+1995-   20 84 1A    JSR   $1A84
+1998-   A9 00       LDA   #$00
+199A-   8D FC 1F    STA   $1FFC
+199D-   A9 80       LDA   #$80
+199F-   8D FD 1F    STA   $1FFD
+19A2-   EE FE 1F    INC   $1FFE
+19A5-   CE FE 1C    DEC   $1CFE
+19A8-   20 60 1B    JSR   $1B60
+19AB-   A9 00       LDA   #$00
+19AD-   8D FC 1F    STA   $1FFC
+19B0-   A9 80       LDA   #$80
+19B2-   8D FD 1F    STA   $1FFD
+19B5-   CE FE 1C    DEC   $1CFE
+19B8-   F0 06       BEQ   $19C0
+19BA-   EE FE 1F    INC   $1FFE
+19BD-   4C A8 19    JMP   $19A8
+19C0-   AD F9 1F    LDA   $1FF9
+19C3-   C9 00       CMP   #$00
+19C5-   F0 03       BEQ   $19CA
+19C7-   4C DD 19    JMP   $19DD
+19CA-   A9 00       LDA   #$00
+19CC-   8D FC 1F    STA   $1FFC
+19CF-   A9 80       LDA   #$80
+19D1-   8D FD 1F    STA   $1FFD
+19D4-   EE FE 1F    INC   $1FFE
+19D7-   20 AD 1B    JSR   $1BAD
+19DA-   20 84 1A    JSR   $1A84
+19DD-   CE FF 1C    DEC   $1CFF
+19E0-   F0 1E       BEQ   $1A00
+19E2-   EE FF 1F    INC   $1FFF
+19E5-   18          CLC
+19E6-   A5 05       LDA   $05
+19E8-   69 0C       ADC   #$0C
+19EA-   85 05       STA   $05
+19EC-   A9 03       LDA   #$03
+19EE-   8D FE 1C    STA   $1CFE
+19F1-   CE FE 1F    DEC   $1FFE
+19F4-   CE FE 1F    DEC   $1FFE
+19F7-   4C 71 19    JMP   $1971
+19FA-   EA          NOP
+19FB-   EA          NOP
+19FC-   EA          NOP
+19FD-   EA          NOP
+19FE-   EA          NOP
+19FF-   EA          NOP
+1A00-   A9 11       LDA   #$11
+1A02-   85 06       STA   $06
+1A04-   A9 3A       LDA   #$3A
+1A06-   8D DE 13    STA   $13DE
+1A09-   A9 38       LDA   #$38
+1A0B-   8D DF 13    STA   $13DF
+1A0E-   20 86 1A    JSR   $1A86
+1A11-   60          RTS
+1A12-   00          BRK
+1A13-   00          BRK
+1A14-   00          BRK
+1A15-   00          BRK
+1A16-   00          BRK
+1A17-   00          BRK
+1A18-   00          BRK
+1A19-   00          BRK
+1A1A-   00          BRK
+1A1B-   00          BRK
+1A1C-   00          BRK
+1A1D-   00          BRK
+1A1E-   00          BRK
+1A1F-   00          BRK
+1A20-   00          BRK
+1A21-   00          BRK
+1A22-   00          BRK
+1A23-   00          BRK
+1A24-   AD F9 1F    LDA   $1FF9
+1A27-   8D F8 1F    STA   $1FF8
+1A2A-   AD FE 1F    LDA   $1FFE
+1A2D-   8D FC 1F    STA   $1FFC
+1A30-   18          CLC
+1A31-   AD FF 1F    LDA   $1FFF
+1A34-   85 00       STA   $00
+1A36-   A9 0A       LDA   #$0A
+1A38-   85 01       STA   $01
+1A3A-   A9 00       LDA   #$00
+1A3C-   85 02       STA   $02
+1A3E-   A2 08       LDX   #$08
+1A40-   46 00       LSR   $00
+1A42-   90 03       BCC   $1A47
+1A44-   18          CLC
+1A45-   65 01       ADC   $01
+1A47-   6A          ROR
+1A48-   66 02       ROR   $02
+1A4A-   CA          DEX
+1A4B-   D0 F3       BNE   $1A40
+1A4D-   85 03       STA   $03
+1A4F-   18          CLC
+1A50-   A5 02       LDA   $02
+1A52-   6D FC 1F    ADC   $1FFC
+1A55-   8D FC 1F    STA   $1FFC
+1A58-   A5 03       LDA   $03
+1A5A-   6D FD 1F    ADC   $1FFD
+1A5D-   8D FD 1F    STA   $1FFD
+1A60-   AD FC 1F    LDA   $1FFC
+1A63-   8D 01 1E    STA   $1E01
+1A66-   AD FD 1F    LDA   $1FFD
+1A69-   8D 02 1E    STA   $1E02
+1A6C-   AD F8 1F    LDA   $1FF8
+1A6F-   C9 00       CMP   #$00
+1A71-   F0 08       BEQ   $1A7B
+1A73-   20 00 1E    JSR   $1E00
+1A76-   4A          LSR
+1A77-   4A          LSR
+1A78-   4A          LSR
+1A79-   4A          LSR
+1A7A-   60          RTS
+1A7B-   20 00 1E    JSR   $1E00
+1A7E-   29 0F       AND   #$0F
+1A80-   60          RTS
+1A81-   FF          ???
+1A82-   00          BRK
+1A83-   00          BRK
+1A84-   85 06       STA   $06
+1A86-   AD DE 13    LDA   $13DE
+1A89-   8D FD 1A    STA   $1AFD
+1A8C-   AD DF 13    LDA   $13DF
+1A8F-   8D FE 1A    STA   $1AFE
+1A92-   A9 18       LDA   #$18
+1A94-   85 00       STA   $00
+1A96-   A5 06       LDA   $06
+1A98-   85 01       STA   $01
+1A9A-   18          CLC
+1A9B-   20 42 13    JSR   $1342
+1A9E-   A5 02       LDA   $02
+1AA0-   8D F9 1A    STA   $1AF9
+1AA3-   A5 03       LDA   $03
+1AA5-   8D FA 1A    STA   $1AFA
+1AA8-   18          CLC
+1AA9-   AD F9 1A    LDA   $1AF9
+1AAC-   69 00       ADC   #$00
+1AAE-   8D F9 1A    STA   $1AF9
+1AB1-   AD FA 1A    LDA   $1AFA
+1AB4-   69 08       ADC   #$08
+1AB6-   8D FA 1A    STA   $1AFA
+1AB9-   A0 00       LDY   #$00
+1ABB-   20 F8 1A    JSR   $1AF8
+1ABE-   20 FC 1A    JSR   $1AFC
+1AC1-   C8          INY
+1AC2-   C0 0C       CPY   #$0C
+1AC4-   F0 6A       BEQ   $1B30
+1AC6-   18          CLC
+1AC7-   AD FE 1A    LDA   $1AFE
+1ACA-   69 04       ADC   #$04
+1ACC-   8D FE 1A    STA   $1AFE
+1ACF-   C9 43       CMP   #$43
+1AD1-   F0 03       BEQ   $1AD6
+1AD3-   4C DD 1A    JMP   $1ADD
+1AD6-   AD FD 1A    LDA   $1AFD
+1AD9-   C9 80       CMP   #$80
+1ADB-   10 0A       BPL   $1AE7
+1ADD-   AD FE 1A    LDA   $1AFE
+1AE0-   C9 40       CMP   #$40
+1AE2-   10 30       BPL   $1B14
+1AE4-   4C 3F 1B    JMP   $1B3F
+1AE7-   4C 00 1B    JMP   $1B00
+1AEA-   00          BRK
+1AEB-   00          BRK
+1AEC-   00          BRK
+1AED-   00          BRK
+1AEE-   00          BRK
+1AEF-   00          BRK
+1AF0-   00          BRK
+1AF1-   00          BRK
+1AF2-   00          BRK
+1AF3-   00          BRK
+1AF4-   00          BRK
+1AF5-   00          BRK
+1AF6-   00          BRK
+1AF7-   00          BRK
+1AF8-   AD B0 09    LDA   $09B0
+1AFB-   60          RTS
+1AFC-   8D 3B 29    STA   $293B
+1AFF-   60          RTS
+1B00-   38          SEC
+1B01-   AD FD 1A    LDA   $1AFD
+1B04-   E9 58       SBC   #$58
+1B06-   8D FD 1A    STA   $1AFD
+1B09-   AD FE 1A    LDA   $1AFE
+1B0C-   E9 23       SBC   #$23
+1B0E-   8D FE 1A    STA   $1AFE
+1B11-   4C 3F 1B    JMP   $1B3F
+1B14-   AD FE 1A    LDA   $1AFE
+1B17-   E9 20       SBC   #$20
+1B19-   8D FE 1A    STA   $1AFE
+1B1C-   18          CLC
+1B1D-   AD FD 1A    LDA   $1AFD
+1B20-   69 80       ADC   #$80
+1B22-   8D FD 1A    STA   $1AFD
+1B25-   AD FE 1A    LDA   $1AFE
+1B28-   69 00       ADC   #$00
+1B2A-   8D FE 1A    STA   $1AFE
+1B2D-   4C 3F 1B    JMP   $1B3F
+1B30-   EE DE 13    INC   $13DE
+1B33-   AD DE 13    LDA   $13DE
+1B36-   8D FD 1A    STA   $1AFD
+1B39-   AD DF 13    LDA   $13DF
+1B3C-   8D FE 1A    STA   $1AFE
+1B3F-   18          CLC
+1B40-   AD F9 1A    LDA   $1AF9
+1B43-   69 01       ADC   #$01
+1B45-   8D F9 1A    STA   $1AF9
+1B48-   AD FA 1A    LDA   $1AFA
+1B4B-   69 00       ADC   #$00
+1B4D-   8D FA 1A    STA   $1AFA
+1B50-   C0 18       CPY   #$18
+1B52-   F0 03       BEQ   $1B57
+1B54-   4C BB 1A    JMP   $1ABB
+1B57-   EE DE 13    INC   $13DE
+1B5A-   60          RTS
+1B5B-   00          BRK
+1B5C-   FF          ???
+1B5D-   FF          ???
+1B5E-   00          BRK
+1B5F-   00          BRK
+1B60-   AD FE 1F    LDA   $1FFE
+1B63-   C9 00       CMP   #$00
+1B65-   30 12       BMI   $1B79
+1B67-   C9 0A       CMP   #$0A
+1B69-   10 0E       BPL   $1B79
+1B6B-   AD FF 1F    LDA   $1FFF
+1B6E-   C9 00       CMP   #$00
+1B70-   10 04       BPL   $1B76
+1B72-   C9 F0       CMP   #$F0
+1B74-   10 03       BPL   $1B79
+1B76-   4C 86 1B    JMP   $1B86
+1B79-   A9 00       LDA   #$00
+1B7B-   8D 01 1E    STA   $1E01
+1B7E-   A9 80       LDA   #$80
+1B80-   8D 02 1E    STA   $1E02
+1B83-   4C 9B 1B    JMP   $1B9B
+1B86-   A9 00       LDA   #$00
+1B88-   8D F8 1F    STA   $1FF8
+1B8B-   20 2A 1A    JSR   $1A2A
+1B8E-   20 84 1A    JSR   $1A84
+1B91-   20 00 1E    JSR   $1E00
+1B94-   4A          LSR
+1B95-   4A          LSR
+1B96-   4A          LSR
+1B97-   4A          LSR
+1B98-   4C 84 1A    JMP   $1A84
+1B9B-   20 00 1E    JSR   $1E00
+1B9E-   29 0F       AND   #$0F
+1BA0-   4C 8E 1B    JMP   $1B8E
+1BA3-   00          BRK
+1BA4-   20 24 1A    JSR   $1A24
+1BA7-   8D 00 03    STA   $0300
+1BAA-   60          RTS
+1BAB-   00          BRK
+1BAC-   FF          ???
+1BAD-   AD FE 1F    LDA   $1FFE
+1BB0-   C9 00       CMP   #$00
+1BB2-   30 13       BMI   $1BC7
+1BB4-   C9 0A       CMP   #$0A
+1BB6-   10 0F       BPL   $1BC7
+1BB8-   AD FF 1F    LDA   $1FFF
+1BBB-   C9 00       CMP   #$00
+1BBD-   10 04       BPL   $1BC3
+1BBF-   C9 F0       CMP   #$F0
+1BC1-   10 04       BPL   $1BC7
+1BC3-   20 24 1A    JSR   $1A24
+1BC6-   60          RTS
+1BC7-   A9 00       LDA   #$00
+1BC9-   8D 01 1E    STA   $1E01
+1BCC-   A9 80       LDA   #$80
+1BCE-   8D 02 1E    STA   $1E02
+1BD1-   20 00 1E    JSR   $1E00
+1BD4-   29 0F       AND   #$0F
+1BD6-   60          RTS
+1BD7-   00          BRK
+1BD8-   A9 00       LDA   #$00
+1BDA-   8D FC 1F    STA   $1FFC
+1BDD-   A9 80       LDA   #$80
+1BDF-   8D FD 1F    STA   $1FFD
+1BE2-   A9 00       LDA   #$00
+1BE4-   8D F8 1F    STA   $1FF8
+1BE7-   20 2A 1C    JSR   $1C2A
+1BEA-   A5 05       LDA   $05
+1BEC-   C9 10       CMP   #$10
+1BEE-   F0 37       BEQ   $1C27
+1BF0-   A9 00       LDA   #$00
+1BF2-   8D FC 1F    STA   $1FFC
+1BF5-   A9 80       LDA   #$80
+1BF7-   8D FD 1F    STA   $1FFD
+1BFA-   A9 01       LDA   #$01
+1BFC-   8D F8 1F    STA   $1FF8
+1BFF-   20 2A 1C    JSR   $1C2A
+1C02-   A5 05       LDA   $05
+1C04-   C9 10       CMP   #$10
+1C06-   F0 1F       BEQ   $1C27
+1C08-   EE FE 1F    INC   $1FFE
+1C0B-   AD FE 1F    LDA   $1FFE
+1C0E-   C9 0A       CMP   #$0A
+1C10-   10 03       BPL   $1C15
+1C12-   4C D8 1B    JMP   $1BD8
+1C15-   A9 00       LDA   #$00
+1C17-   8D FE 1F    STA   $1FFE
+1C1A-   EE FF 1F    INC   $1FFF
+1C1D-   4C D8 1B    JMP   $1BD8
+1C20-   C9 9F       CMP   #$9F
+1C22-   10 05       BPL   $1C29
+1C24-   4C D8 1B    JMP   $1BD8
+1C27-   C6 04       DEC   $04
+1C29-   60          RTS
+1C2A-   18          CLC
+1C2B-   AD FC 1F    LDA   $1FFC
+1C2E-   6D FE 1F    ADC   $1FFE
+1C31-   8D FC 1F    STA   $1FFC
+1C34-   AD FD 1F    LDA   $1FFD
+1C37-   69 00       ADC   #$00
+1C39-   8D FD 1F    STA   $1FFD
+1C3C-   20 30 1A    JSR   $1A30
+1C3F-   C9 0D       CMP   #$0D
+1C41-   F0 05       BEQ   $1C48
+1C43-   C9 03       CMP   #$03
+1C45-   F0 01       BEQ   $1C48
+1C47-   60          RTS
+1C48-   EA          NOP
+1C49-   E6 04       INC   $04
+1C4B-   AD FE 1F    LDA   $1FFE
+1C4E-   CD FA 1F    CMP   $1FFA
+1C51-   F0 01       BEQ   $1C54
+1C53-   60          RTS
+1C54-   AD FF 1F    LDA   $1FFF
+1C57-   CD FB 1F    CMP   $1FFB
+1C5A-   F0 01       BEQ   $1C5D
+1C5C-   60          RTS
+1C5D-   AD F8 1F    LDA   $1FF8
+1C60-   CD F9 1F    CMP   $1FF9
+1C63-   F0 01       BEQ   $1C66
+1C65-   60          RTS
+1C66-   A9 10       LDA   #$10
+1C68-   85 05       STA   $05
+1C6A-   60          RTS
+1C6B-   A9 FF       LDA   #$FF
+1C6D-   FF          ???
+1C6E-   A2 00       LDX   #$00
+1C70-   A9 05       LDA   #$05
+1C72-   8D FF 1C    STA   $1CFF
+1C75-   CE FF 1F    DEC   $1FFF
+1C78-   CE FF 1F    DEC   $1FFF
+1C7B-   CE FE 1F    DEC   $1FFE
+1C7E-   4C 87 1C    JMP   $1C87
+1C81-   CE FE 1F    DEC   $1FFE
+1C84-   CE FE 1F    DEC   $1FFE
+1C87-   A9 03       LDA   #$03
+1C89-   8D FE 1C    STA   $1CFE
+1C8C-   A9 00       LDA   #$00
+1C8E-   8D FC 1F    STA   $1FFC
+1C91-   A9 80       LDA   #$80
+1C93-   8D FD 1F    STA   $1FFD
+1C96-   A9 00       LDA   #$00
+1C98-   8D F8 1F    STA   $1FF8
+1C9B-   20 2A 1A    JSR   $1A2A
+1C9E-   20 00 1E    JSR   $1E00
+1CA1-   85 00       STA   $00
+1CA3-   AD FE 1F    LDA   $1FFE
+1CA6-   C9 00       CMP   #$00
+1CA8-   30 27       BMI   $1CD1
+1CAA-   AD FF 1F    LDA   $1FFF
+1CAD-   4C D4 1F    JMP   $1FD4
+1CB0-   AD FF 1F    LDA   $1FFF
+1CB3-   C9 FF       CMP   #$FF
+1CB5-   F0 1A       BEQ   $1CD1
+1CB7-   C9 FE       CMP   #$FE
+1CB9-   F0 16       BEQ   $1CD1
+1CBB-   38          SEC
+1CBC-   AD FC 1F    LDA   $1FFC
+1CBF-   E9 00       SBC   #$00
+1CC1-   8D FD 1A    STA   $1AFD
+1CC4-   AD FD 1F    LDA   $1FFD
+1CC7-   E9 6C       SBC   #$6C
+1CC9-   8D FE 1A    STA   $1AFE
+1CCC-   A5 00       LDA   $00
+1CCE-   20 FC 1A    JSR   $1AFC
+1CD1-   CE FE 1C    DEC   $1CFE
+1CD4-   F0 06       BEQ   $1CDC
+1CD6-   EE FE 1F    INC   $1FFE
+1CD9-   4C 8C 1C    JMP   $1C8C
+1CDC-   CE FF 1C    DEC   $1CFF
+1CDF-   F0 08       BEQ   $1CE9
+1CE1-   EA          NOP
+1CE2-   EA          NOP
+1CE3-   EE FF 1F    INC   $1FFF
+1CE6-   4C 81 1C    JMP   $1C81
+1CE9-   A9 05       LDA   #$05
+1CEB-   8D FF 1C    STA   $1CFF
+1CEE-   CE FF 1F    DEC   $1FFF
+1CF1-   CE FF 1F    DEC   $1FFF
+1CF4-   CE FF 1F    DEC   $1FFF
+1CF7-   CE FF 1F    DEC   $1FFF
+1CFA-   4C 00 1D    JMP   $1D00
+1CFD-   07          ???
+1CFE-   00          BRK
+1CFF-   00          BRK
+1D00-   CE FE 1F    DEC   $1FFE
+1D03-   CE FE 1F    DEC   $1FFE
+1D06-   A9 03       LDA   #$03
+1D08-   8D FE 1C    STA   $1CFE
+1D0B-   A9 00       LDA   #$00
+1D0D-   8D FC 1F    STA   $1FFC
+1D10-   20 68 18    JSR   $1868
+1D13-   EA          NOP
+1D14-   EA          NOP
+1D15-   A9 00       LDA   #$00
+1D17-   8D F8 1F    STA   $1FF8
+1D1A-   20 2A 1A    JSR   $1A2A
+1D1D-   C9 0F       CMP   #$0F
+1D1F-   D0 03       BNE   $1D24
+1D21-   20 A0 1F    JSR   $1FA0
+1D24-   A9 00       LDA   #$00
+1D26-   8D FC 1F    STA   $1FFC
+1D29-   20 68 18    JSR   $1868
+1D2C-   EA          NOP
+1D2D-   EA          NOP
+1D2E-   A9 01       LDA   #$01
+1D30-   8D F8 1F    STA   $1FF8
+1D33-   20 2A 1A    JSR   $1A2A
+1D36-   C9 0F       CMP   #$0F
+1D38-   D0 03       BNE   $1D3D
+1D3A-   20 BA 1F    JSR   $1FBA
+1D3D-   CE FE 1C    DEC   $1CFE
+1D40-   F0 06       BEQ   $1D48
+1D42-   EE FE 1F    INC   $1FFE
+1D45-   4C 0B 1D    JMP   $1D0B
+1D48-   CE FF 1C    DEC   $1CFF
+1D4B-   F0 06       BEQ   $1D53
+1D4D-   EE FF 1F    INC   $1FFF
+1D50-   4C 00 1D    JMP   $1D00
+1D53-   60          RTS
+1D54-   FF          ???
+1D55-   AD FE 1C    LDA   $1CFE
+1D58-   C9 01       CMP   #$01
+1D5A-   D0 03       BNE   $1D5F
+1D5C-   4C A0 1D    JMP   $1DA0
+1D5F-   C9 03       CMP   #$03
+1D61-   D0 03       BNE   $1D66
+1D63-   4C 70 1D    JMP   $1D70
+1D66-   AD F9 1F    LDA   $1FF9
+1D69-   C9 00       CMP   #$00
+1D6B-   D0 03       BNE   $1D70
+1D6D-   4C CC 1E    JMP   $1ECC
+1D70-   A9 00       LDA   #$00
+1D72-   8D FC 1F    STA   $1FFC
+1D75-   A9 80       LDA   #$80
+1D77-   8D FD 1F    STA   $1FFD
+1D7A-   A9 01       LDA   #$01
+1D7C-   8D F8 1F    STA   $1FF8
+1D7F-   20 2A 1A    JSR   $1A2A
+1D82-   C9 07       CMP   #$07
+1D84-   F0 08       BEQ   $1D8E
+1D86-   A9 00       LDA   #$00
+1D88-   8D F8 1F    STA   $1FF8
+1D8B-   4C CC 1E    JMP   $1ECC
+1D8E-   A9 8D       LDA   #$8D
+1D90-   8D 00 1E    STA   $1E00
+1D93-   A9 F7       LDA   #$F7
+1D95-   20 00 1E    JSR   $1E00
+1D98-   A9 AD       LDA   #$AD
+1D9A-   8D 00 1E    STA   $1E00
+1D9D-   4C CC 1E    JMP   $1ECC
+1DA0-   A9 00       LDA   #$00
+1DA2-   8D FC 1F    STA   $1FFC
+1DA5-   A9 80       LDA   #$80
+1DA7-   8D FD 1F    STA   $1FFD
+1DAA-   A9 01       LDA   #$01
+1DAC-   8D F8 1F    STA   $1FF8
+1DAF-   AD FE 1F    LDA   $1FFE
+1DB2-   8D FD 1C    STA   $1CFD
+1DB5-   CE FE 1F    DEC   $1FFE
+1DB8-   20 2A 1A    JSR   $1A2A
+1DBB-   C9 07       CMP   #$07
+1DBD-   F0 0B       BEQ   $1DCA
+1DBF-   EE FE 1F    INC   $1FFE
+1DC2-   A9 00       LDA   #$00
+1DC4-   8D F8 1F    STA   $1FF8
+1DC7-   4C D2 1E    JMP   $1ED2
+1DCA-   20 00 1E    JSR   $1E00
+1DCD-   85 00       STA   $00
+1DCF-   A9 8D       LDA   #$8D
+1DD1-   8D 00 1E    STA   $1E00
+1DD4-   A5 00       LDA   $00
+1DD6-   49 80       EOR   #$80
+1DD8-   20 00 1E    JSR   $1E00
+1DDB-   A9 AD       LDA   #$AD
+1DDD-   8D 00 1E    STA   $1E00
+1DE0-   4C A0 1E    JMP   $1EA0
+1DE3-   00          BRK
+1DE4-   FF          ???
+1DE5-   AD FE 1C    LDA   $1CFE
+1DE8-   C9 03       CMP   #$03
+1DEA-   D0 03       BNE   $1DEF
+1DEC-   4C 34 1E    JMP   $1E34
+1DEF-   C9 01       CMP   #$01
+1DF1-   D0 03       BNE   $1DF6
+1DF3-   4C 04 1E    JMP   $1E04
+1DF6-   AD F9 1F    LDA   $1FF9
+1DF9-   C9 01       CMP   #$01
+1DFB-   D0 07       BNE   $1E04
+1DFD-   4C CC 1E    JMP   $1ECC
+1E00-   AD F7 A0    LDA   $A0F7
+1E03-   60          RTS
+1E04-   A9 00       LDA   #$00
+1E06-   8D FC 1F    STA   $1FFC
+1E09-   A9 80       LDA   #$80
+1E0B-   8D FD 1F    STA   $1FFD
+1E0E-   A9 00       LDA   #$00
+1E10-   8D F8 1F    STA   $1FF8
+1E13-   20 2A 1A    JSR   $1A2A
+1E16-   C9 07       CMP   #$07
+1E18-   F0 08       BEQ   $1E22
+1E1A-   A9 01       LDA   #$01
+1E1C-   8D F8 1F    STA   $1FF8
+1E1F-   4C CC 1E    JMP   $1ECC
+1E22-   A9 8D       LDA   #$8D
+1E24-   8D 00 1E    STA   $1E00
+1E27-   A9 7F       LDA   #$7F
+1E29-   20 00 1E    JSR   $1E00
+1E2C-   A9 AD       LDA   #$AD
+1E2E-   8D 00 1E    STA   $1E00
+1E31-   4C CC 1E    JMP   $1ECC
+1E34-   A9 00       LDA   #$00
+1E36-   8D FC 1F    STA   $1FFC
+1E39-   A9 80       LDA   #$80
+1E3B-   8D FD 1F    STA   $1FFD
+1E3E-   A9 00       LDA   #$00
+1E40-   8D F8 1F    STA   $1FF8
+1E43-   AD FE 1F    LDA   $1FFE
+1E46-   8D FD 1C    STA   $1CFD
+1E49-   EE FE 1F    INC   $1FFE
+1E4C-   20 2A 1A    JSR   $1A2A
+1E4F-   C9 07       CMP   #$07
+1E51-   F0 0B       BEQ   $1E5E
+1E53-   CE FE 1F    DEC   $1FFE
+1E56-   A9 01       LDA   #$01
+1E58-   8D F8 1F    STA   $1FF8
+1E5B-   4C D2 1E    JMP   $1ED2
+1E5E-   20 00 1E    JSR   $1E00
+1E61-   85 00       STA   $00
+1E63-   A9 8D       LDA   #$8D
+1E65-   8D 00 1E    STA   $1E00
+1E68-   A5 00       LDA   $00
+1E6A-   49 08       EOR   #$08
+1E6C-   20 00 1E    JSR   $1E00
+1E6F-   A9 AD       LDA   #$AD
+1E71-   8D 00 1E    STA   $1E00
+1E74-   CE FE 1F    DEC   $1FFE
+1E77-   A9 00       LDA   #$00
+1E79-   8D FC 1F    STA   $1FFC
+1E7C-   A9 80       LDA   #$80
+1E7E-   8D FD 1F    STA   $1FFD
+1E81-   20 2A 1A    JSR   $1A2A
+1E84-   20 00 1E    JSR   $1E00
+1E87-   85 00       STA   $00
+1E89-   A9 8D       LDA   #$8D
+1E8B-   8D 00 1E    STA   $1E00
+1E8E-   A5 00       LDA   $00
+1E90-   49 80       EOR   #$80
+1E92-   20 00 1E    JSR   $1E00
+1E95-   A9 AD       LDA   #$AD
+1E97-   8D 00 1E    STA   $1E00
+1E9A-   EE FE 1F    INC   $1FFE
+1E9D-   4C D2 1E    JMP   $1ED2
+1EA0-   EE FE 1F    INC   $1FFE
+1EA3-   A9 00       LDA   #$00
+1EA5-   8D FC 1F    STA   $1FFC
+1EA8-   A9 80       LDA   #$80
+1EAA-   8D FD 1F    STA   $1FFD
+1EAD-   20 2A 1A    JSR   $1A2A
+1EB0-   20 00 1E    JSR   $1E00
+1EB3-   85 00       STA   $00
+1EB5-   A9 8D       LDA   #$8D
+1EB7-   8D 00 1E    STA   $1E00
+1EBA-   A5 00       LDA   $00
+1EBC-   49 08       EOR   #$08
+1EBE-   20 00 1E    JSR   $1E00
+1EC1-   A9 AD       LDA   #$AD
+1EC3-   8D 00 1E    STA   $1E00
+1EC6-   CE FE 1F    DEC   $1FFE
+1EC9-   4C D2 1E    JMP   $1ED2
+1ECC-   AD FE 1F    LDA   $1FFE
+1ECF-   8D FD 1C    STA   $1CFD
+1ED2-   AD FF 1C    LDA   $1CFF
+1ED5-   C9 03       CMP   #$03
+1ED7-   30 07       BMI   $1EE0
+1ED9-   C9 04       CMP   #$04
+1EDB-   10 06       BPL   $1EE3
+1EDD-   4C 77 1F    JMP   $1F77
+1EE0-   4C 41 1F    JMP   $1F41
+1EE3-   EE FF 1F    INC   $1FFF
+1EE6-   A9 00       LDA   #$00
+1EE8-   8D FC 1F    STA   $1FFC
+1EEB-   A9 80       LDA   #$80
+1EED-   8D FD 1F    STA   $1FFD
+1EF0-   20 2A 1A    JSR   $1A2A
+1EF3-   C9 07       CMP   #$07
+1EF5-   F0 06       BEQ   $1EFD
+1EF7-   CE FF 1F    DEC   $1FFF
+1EFA-   4C 77 1F    JMP   $1F77
+1EFD-   4C 22 1F    JMP   $1F22
+1F00-   85 00       STA   $00
+1F02-   A9 8D       LDA   #$8D
+1F04-   8D 00 1E    STA   $1E00
+1F07-   AD F8 1F    LDA   $1FF8
+1F0A-   C9 01       CMP   #$01
+1F0C-   F0 07       BEQ   $1F15
+1F0E-   A5 00       LDA   $00
+1F10-   49 08       EOR   #$08
+1F12-   4C 19 1F    JMP   $1F19
+1F15-   A5 00       LDA   $00
+1F17-   49 80       EOR   #$80
+1F19-   20 00 1E    JSR   $1E00
+1F1C-   A9 AD       LDA   #$AD
+1F1E-   8D 00 1E    STA   $1E00
+1F21-   60          RTS
+1F22-   20 00 1E    JSR   $1E00
+1F25-   20 00 1F    JSR   $1F00
+1F28-   CE FF 1F    DEC   $1FFF
+1F2B-   A9 00       LDA   #$00
+1F2D-   8D FC 1F    STA   $1FFC
+1F30-   A9 80       LDA   #$80
+1F32-   8D FD 1F    STA   $1FFD
+1F35-   20 2A 1A    JSR   $1A2A
+1F38-   20 00 1E    JSR   $1E00
+1F3B-   20 00 1F    JSR   $1F00
+1F3E-   4C 77 1F    JMP   $1F77
+1F41-   CE FF 1F    DEC   $1FFF
+1F44-   A9 00       LDA   #$00
+1F46-   8D FC 1F    STA   $1FFC
+1F49-   A9 80       LDA   #$80
+1F4B-   8D FD 1F    STA   $1FFD
+1F4E-   20 2A 1A    JSR   $1A2A
+1F51-   C9 07       CMP   #$07
+1F53-   F0 06       BEQ   $1F5B
+1F55-   EE FF 1F    INC   $1FFF
+1F58-   4C 77 1F    JMP   $1F77
+1F5B-   20 00 1E    JSR   $1E00
+1F5E-   20 00 1F    JSR   $1F00
+1F61-   EE FF 1F    INC   $1FFF
+1F64-   A9 00       LDA   #$00
+1F66-   8D FC 1F    STA   $1FFC
+1F69-   A9 80       LDA   #$80
+1F6B-   8D FD 1F    STA   $1FFD
+1F6E-   20 2A 1A    JSR   $1A2A
+1F71-   20 00 1E    JSR   $1E00
+1F74-   20 00 1F    JSR   $1F00
+1F77-   AD FD 1C    LDA   $1CFD
+1F7A-   8D FE 1F    STA   $1FFE
+1F7D-   60          RTS
+1F7E-   A9 80       LDA   #$80
+1F80-   8D FD 1F    STA   $1FFD
+1F83-   60          RTS
+1F84-   20 00 12    JSR   $1200
+1F87-   18          CLC
+1F88-   AD DE 13    LDA   $13DE
+1F8B-   69 04       ADC   #$04
+1F8D-   8D DE 13    STA   $13DE
+1F90-   AD DF 13    LDA   $13DF
+1F93-   69 00       ADC   #$00
+1F95-   8D DF 13    STA   $13DF
+1F98-   CE FF 1C    DEC   $1CFF
+1F9B-   CE FF 1C    DEC   $1CFF
+1F9E-   60          RTS
+1F9F-   00          BRK
+1FA0-   AD FE 1F    LDA   $1FFE
+1FA3-   C9 00       CMP   #$00
+1FA5-   30 12       BMI   $1FB9
+1FA7-   C9 0A       CMP   #$0A
+1FA9-   10 0E       BPL   $1FB9
+1FAB-   AD FF 1F    LDA   $1FFF
+1FAE-   C9 FF       CMP   #$FF
+1FB0-   F0 07       BEQ   $1FB9
+1FB2-   C9 FE       CMP   #$FE
+1FB4-   F0 03       BEQ   $1FB9
+1FB6-   4C 55 1D    JMP   $1D55
+1FB9-   60          RTS
+1FBA-   AD FE 1F    LDA   $1FFE
+1FBD-   C9 00       CMP   #$00
+1FBF-   30 12       BMI   $1FD3
+1FC1-   C9 0A       CMP   #$0A
+1FC3-   10 0E       BPL   $1FD3
+1FC5-   AD FF 1F    LDA   $1FFF
+1FC8-   C9 FF       CMP   #$FF
+1FCA-   F0 07       BEQ   $1FD3
+1FCC-   C9 FE       CMP   #$FE
+1FCE-   F0 03       BEQ   $1FD3
+1FD0-   4C E5 1D    JMP   $1DE5
+1FD3-   60          RTS
+1FD4-   C9 70       CMP   #$70
+1FD6-   10 0C       BPL   $1FE4
+1FD8-   C9 00       CMP   #$00
+1FDA-   30 08       BMI   $1FE4
+1FDC-   A9 6C       LDA   #$6C
+1FDE-   8D C8 1C    STA   $1CC8
+1FE1-   4C BB 1C    JMP   $1CBB
+1FE4-   A9 70       LDA   #$70
+1FE6-   8D C8 1C    STA   $1CC8
+1FE9-   4C B0 1C    JMP   $1CB0
+1FEC-   FF          ???
+1FED-   FF          ???

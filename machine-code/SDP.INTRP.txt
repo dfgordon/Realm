@@ -1,0 +1,116 @@
+4B00-   20 E2 F3    JSR   $F3E2
+4B03-   A2 00       LDX   #$00
+4B05-   20 00 03    JSR   $0300
+4B08-   95 00       STA   $00,X
+4B0A-   E8          INX
+4B0B-   E0 08       CPX   #$08
+4B0D-   F0 06       BEQ   $4B15
+4B0F-   A9 00       LDA   #$00
+4B11-   C9 00       CMP   #$00
+4B13-   F0 F0       BEQ   $4B05
+4B15-   A5 00       LDA   $00
+4B17-   C9 00       CMP   #$00
+4B19-   F0 0D       BEQ   $4B28
+4B1B-   C9 01       CMP   #$01
+4B1D-   F0 45       BEQ   $4B64
+4B1F-   C9 02       CMP   #$02
+4B21-   F0 5F       BEQ   $4B82
+4B23-   C9 03       CMP   #$03
+4B25-   F0 7F       BEQ   $4BA6
+4B27-   60          RTS
+4B28-   A6 01       LDX   $01
+4B2A-   20 F0 F6    JSR   $F6F0
+4B2D-   A6 03       LDX   $03
+4B2F-   A4 04       LDY   $04
+4B31-   A5 05       LDA   $05
+4B33-   20 11 F4    JSR   $F411
+4B36-   A6 02       LDX   $02
+4B38-   20 30 F7    JSR   $F730
+4B3B-   A6 1A       LDX   $1A
+4B3D-   A4 1B       LDY   $1B
+4B3F-   20 01 F6    JSR   $F601
+4B42-   18          CLC
+4B43-   AD 01 03    LDA   $0301
+4B46-   69 06       ADC   #$06
+4B48-   B8          CLV
+4B49-   50 08       BVC   $4B53
+4B4B-   00          BRK
+4B4C-   00          BRK
+4B4D-   18          CLC
+4B4E-   AD 01 03    LDA   $0301
+4B51-   69 08       ADC   #$08
+4B53-   8D 01 03    STA   $0301
+4B56-   AD 02 03    LDA   $0302
+4B59-   69 00       ADC   #$00
+4B5B-   8D 02 03    STA   $0302
+4B5E-   A9 00       LDA   #$00
+4B60-   C9 00       CMP   #$00
+4B62-   F0 9F       BEQ   $4B03
+4B64-   A6 07       LDX   $07
+4B66-   20 F0 F6    JSR   $F6F0
+4B69-   A6 01       LDX   $01
+4B6B-   A4 02       LDY   $02
+4B6D-   A5 05       LDA   $05
+4B6F-   20 11 F4    JSR   $F411
+4B72-   A5 03       LDA   $03
+4B74-   A6 04       LDX   $04
+4B76-   A4 06       LDY   $06
+4B78-   20 3A F5    JSR   $F53A
+4B7B-   A9 00       LDA   #$00
+4B7D-   C9 00       CMP   #$00
+4B7F-   F0 CC       BEQ   $4B4D
+4B81-   00          BRK
+4B82-   A6 07       LDX   $07
+4B84-   20 F0 F6    JSR   $F6F0
+4B87-   C6 06       DEC   $06
+4B89-   A5 06       LDA   $06
+4B8B-   C9 00       CMP   #$00
+4B8D-   F0 EC       BEQ   $4B7B
+4B8F-   A6 01       LDX   $01
+4B91-   A4 02       LDY   $02
+4B93-   A5 05       LDA   $05
+4B95-   20 11 F4    JSR   $F411
+4B98-   A5 03       LDA   $03
+4B9A-   A6 04       LDX   $04
+4B9C-   A4 05       LDY   $05
+4B9E-   20 3A F5    JSR   $F53A
+4BA1-   E6 05       INC   $05
+4BA3-   B8          CLV
+4BA4-   50 E1       BVC   $4B87
+4BA6-   A9 84       LDA   #$84
+4BA8-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BAB-   A9 C2       LDA   #$C2
+4BAD-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BB0-   A9 CC       LDA   #$CC
+4BB2-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BB5-   A9 CF       LDA   #$CF
+4BB7-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BBA-   A9 C1       LDA   #$C1
+4BBC-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BBF-   A9 C4       LDA   #$C4
+4BC1-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BC4-   A9 A0       LDA   #$A0
+4BC6-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BC9-   A9 C4       LDA   #$C4
+4BCB-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BCE-   A5 01       LDA   $01
+4BD0-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BD3-   A9 AC       LDA   #$AC
+4BD5-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BD8-   A9 C1       LDA   #$C1
+4BDA-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BDD-   A9 A4       LDA   #$A4
+4BDF-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BE2-   A9 B4       LDA   #$B4
+4BE4-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BE7-   A9 B0       LDA   #$B0
+4BE9-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BEC-   A9 B0       LDA   #$B0
+4BEE-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BF1-   20 ED FD    JSR   $FDED    F8ROM:COUT
+4BF4-   20 8E FD    JSR   $FD8E    F8ROM:CROUT
+4BF7-   A9 00       LDA   #$00
+4BF9-   C9 00       CMP   #$00
+4BFB-   F0 8B       BEQ   $4B88
+4BFD-   00          BRK
+4BFE-   00          BRK

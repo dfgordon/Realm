@@ -1,0 +1,196 @@
+1200-   AD FF 1B    LDA   $1BFF
+1203-   C9 09       CMP   #$09
+1205-   F0 20       BEQ   $1227
+1207-   C9 08       CMP   #$08
+1209-   F0 27       BEQ   $1232
+120B-   C9 07       CMP   #$07
+120D-   F0 2B       BEQ   $123A
+120F-   C9 06       CMP   #$06
+1211-   F0 32       BEQ   $1245
+1213-   C9 05       CMP   #$05
+1215-   F0 36       BEQ   $124D
+1217-   C9 04       CMP   #$04
+1219-   F0 3D       BEQ   $1258
+121B-   C9 03       CMP   #$03
+121D-   F0 41       BEQ   $1260
+121F-   C9 02       CMP   #$02
+1221-   F0 48       BEQ   $126B
+1223-   C9 01       CMP   #$01
+1225-   F0 4C       BEQ   $1273
+1227-   A9 39       LDA   #$39
+1229-   8D DF 13    STA   $13DF
+122C-   A9 0A       LDA   #$0A
+122E-   8D DE 13    STA   $13DE
+1231-   60          RTS
+1232-   A9 2A       LDA   #$2A
+1234-   8D DF 13    STA   $13DF
+1237-   4C 2C 12    JMP   $122C
+123A-   A9 3A       LDA   #$3A
+123C-   8D DF 13    STA   $13DF
+123F-   A9 8A       LDA   #$8A
+1241-   8D DE 13    STA   $13DE
+1244-   60          RTS
+1245-   A9 2B       LDA   #$2B
+1247-   8D DF 13    STA   $13DF
+124A-   4C 3F 12    JMP   $123F
+124D-   A9 38       LDA   #$38
+124F-   8D DF 13    STA   $13DF
+1252-   A9 32       LDA   #$32
+1254-   8D DE 13    STA   $13DE
+1257-   60          RTS
+1258-   A9 29       LDA   #$29
+125A-   8D DF 13    STA   $13DF
+125D-   4C 52 12    JMP   $1252
+1260-   A9 39       LDA   #$39
+1262-   8D DF 13    STA   $13DF
+1265-   A9 B2       LDA   #$B2
+1267-   8D DE 13    STA   $13DE
+126A-   60          RTS
+126B-   A9 2A       LDA   #$2A
+126D-   8D DF 13    STA   $13DF
+1270-   4C 65 12    JMP   $1265
+1273-   A9 3B       LDA   #$3B
+1275-   8D DF 13    STA   $13DF
+1278-   A9 32       LDA   #$32
+127A-   8D DE 13    STA   $13DE
+127D-   60          RTS
+127E-   8D DF 13    STA   $13DF
+1281-   AD E0 13    LDA   $13E0
+1284-   85 00       STA   $00
+1286-   A9 07       LDA   #$07
+1288-   85 02       STA   $02
+128A-   A9 00       LDA   #$00
+128C-   85 01       STA   $01
+128E-   AD E1 13    LDA   $13E1
+1291-   20 00 13    JSR   $1300
+1294-   A9 00       LDA   #$00
+1296-   85 02       STA   $02
+1298-   A5 01       LDA   $01
+129A-   6D DE 13    ADC   $13DE
+129D-   8D DE 13    STA   $13DE
+12A0-   A5 02       LDA   $02
+12A2-   6D DF 13    ADC   $13DF
+12A5-   8D DF 13    STA   $13DF
+12A8-   60          RTS
+12A9-   4C B5 12    JMP   $12B5
+12AC-   EA          NOP
+12AD-   EA          NOP
+12AE-   EA          NOP
+12AF-   EA          NOP
+12B0-   4C D0 12    JMP   $12D0
+12B3-   EA          NOP
+12B4-   EA          NOP
+12B5-   A9 00       LDA   #$00
+12B7-   8D E5 13    STA   $13E5
+12BA-   A9 20       LDA   #$20
+12BC-   8D E6 13    STA   $13E6
+12BF-   A9 00       LDA   #$00
+12C1-   8D E8 13    STA   $13E8
+12C4-   CE EB 13    DEC   $13EB
+12C7-   38          SEC
+12C8-   4C 38 12    JMP   $1238
+12CB-   00          BRK
+12CC-   00          BRK
+12CD-   00          BRK
+12CE-   00          BRK
+12CF-   00          BRK
+12D0-   A9 50       LDA   #$50
+12D2-   8D E5 13    STA   $13E5
+12D5-   A9 20       LDA   #$20
+12D7-   8D E6 13    STA   $13E6
+12DA-   A9 11       LDA   #$11
+12DC-   8D E8 13    STA   $13E8
+12DF-   38          SEC
+12E0-   4C 38 12    JMP   $1238
+12E3-   00          BRK
+12E4-   00          BRK
+12E5-   00          BRK
+12E6-   00          BRK
+12E7-   00          BRK
+12E8-   00          BRK
+12E9-   00          BRK
+12EA-   00          BRK
+12EB-   00          BRK
+12EC-   00          BRK
+12ED-   00          BRK
+12EE-   00          BRK
+12EF-   00          BRK
+12F0-   00          BRK
+12F1-   00          BRK
+12F2-   00          BRK
+12F3-   00          BRK
+12F4-   00          BRK
+12F5-   00          BRK
+12F6-   00          BRK
+12F7-   00          BRK
+12F8-   00          BRK
+12F9-   00          BRK
+12FA-   00          BRK
+12FB-   00          BRK
+12FC-   00          BRK
+12FD-   00          BRK
+12FE-   00          BRK
+12FF-   00          BRK
+1300-   A0 08       LDY   #$08
+1302-   38          SEC
+1303-   E5 02       SBC   $02
+1305-   08          PHP
+1306-   26 01       ROL   $01
+1308-   06 00       ASL   $00
+130A-   2A          ROL
+130B-   28          PLP
+130C-   90 05       BCC   $1313
+130E-   E5 02       SBC   $02
+1310-   4C 15 13    JMP   $1315
+1313-   65 02       ADC   $02
+1315-   88          DEY
+1316-   D0 ED       BNE   $1305
+1318-   B0 03       BCS   $131D
+131A-   65 02       ADC   $02
+131C-   18          CLC
+131D-   26 01       ROL   $01
+131F-   60          RTS
+1320-   A9 00       LDA   #$00
+1322-   85 02       STA   $02
+1324-   A2 08       LDX   #$08
+1326-   46 00       LSR   $00
+1328-   90 07       BCC   $1331
+132A-   18          CLC
+132B-   A5 03       LDA   $03
+132D-   65 01       ADC   $01
+132F-   85 03       STA   $03
+1331-   66 03       ROR   $03
+1333-   66 02       ROR   $02
+1335-   CA          DEX
+1336-   D0 EE       BNE   $1326
+1338-   60          RTS
+1339-   00          BRK
+133A-   A9 00       LDA   #$00
+133C-   85 00       STA   $00
+133E-   A9 00       LDA   #$00
+1340-   85 01       STA   $01
+1342-   A9 00       LDA   #$00
+1344-   85 03       STA   $03
+1346-   4C 20 13    JMP   $1320
+1349-   00          BRK
+134A-   00          BRK
+134B-   00          BRK
+134C-   00          BRK
+134D-   00          BRK
+134E-   00          BRK
+134F-   00          BRK
+1350-   A9 00       LDA   #$00
+1352-   85 00       STA   $00
+1354-   A9 08       LDA   #$08
+1356-   85 02       STA   $02
+1358-   A9 00       LDA   #$00
+135A-   85 01       STA   $01
+135C-   A9 00       LDA   #$00
+135E-   20 00 13    JSR   $1300
+1361-   85 03       STA   $03
+1363-   60          RTS
+1364-   38          SEC
+1365-   AD EB 13    LDA   $13EB
+1368-   ED E8 13    SBC   $13E8
+136B-   85 00       STA   $00
+136D-   4C 40 12    JMP   $1240

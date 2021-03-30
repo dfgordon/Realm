@@ -1,0 +1,81 @@
+0300-   A9 1E       LDA   #$1E
+0302-   A2 10       LDX   #$10
+0304-   8D FF 1F    STA   $1FFF
+0307-   8E FE 1F    STX   $1FFE
+030A-   CE FF 1F    DEC   $1FFF
+030D-   AD FF 1F    LDA   $1FFF
+0310-   8D FD 1F    STA   $1FFD
+0313-   CE FD 1F    DEC   $1FFD
+0316-   F0 03       BEQ   $031B
+0318-   4C 13 03    JMP   $0313
+031B-   20 99 03    JSR   $0399
+031E-   CE FE 1F    DEC   $1FFE
+0321-   F0 09       BEQ   $032C
+0323-   AD FF 1F    LDA   $1FFF
+0326-   8D FD 1F    STA   $1FFD
+0329-   4C 13 03    JMP   $0313
+032C-   A2 05       LDX   #$05
+032E-   8E FE 1F    STX   $1FFE
+0331-   AD FF 1F    LDA   $1FFF
+0334-   CE FF 1F    DEC   $1FFF
+0337-   F0 03       BEQ   $033C
+0339-   4C 0D 03    JMP   $030D
+033C-   60          RTS
+033D-   A9 00       LDA   #$00
+033F-   A2 01       LDX   #$01
+0341-   8D FF 1F    STA   $1FFF
+0344-   8E FE 1F    STX   $1FFE
+0347-   AD FF 1F    LDA   $1FFF
+034A-   8D FD 1F    STA   $1FFD
+034D-   CE FD 1F    DEC   $1FFD
+0350-   AD FD 1F    LDA   $1FFD
+0353-   C9 00       CMP   #$00
+0355-   D0 F6       BNE   $034D
+0357-   20 99 03    JSR   $0399
+035A-   CE FE 1F    DEC   $1FFE
+035D-   F0 0B       BEQ   $036A
+035F-   AD FF 1F    LDA   $1FFF
+0362-   8D FD 1F    STA   $1FFD
+0365-   4C 4D 03    JMP   $034D
+0368-   00          BRK
+0369-   00          BRK
+036A-   EE FF 1F    INC   $1FFF
+036D-   AD FF 1F    LDA   $1FFF
+0370-   C9 28       CMP   #$28
+0372-   D0 01       BNE   $0375
+0374-   60          RTS
+0375-   A2 0A       LDX   #$0A
+0377-   8E FE 1F    STX   $1FFE
+037A-   4C 47 03    JMP   $0347
+037D-   A9 10       LDA   #$10
+037F-   8D FF 1F    STA   $1FFF
+0382-   20 A8 FC    JSR   $FCA8    F8ROM:WAIT
+0385-   20 99 03    JSR   $0399
+0388-   CE FF 1F    DEC   $1FFF
+038B-   AD FF 1F    LDA   $1FFF
+038E-   C9 00       CMP   #$00
+0390-   F0 06       BEQ   $0398
+0392-   AD FF 1F    LDA   $1FFF
+0395-   4C 82 03    JMP   $0382
+0398-   60          RTS
+0399-   8D 30 C0    STA   $C030    rw:SPKR
+039C-   60          RTS
+039D-   20 7D 03    JSR   $037D
+03A0-   A9 70       LDA   #$70
+03A2-   20 A8 FC    JSR   $FCA8    F8ROM:WAIT
+03A5-   20 7D 03    JSR   $037D
+03A8-   60          RTS
+03A9-   1F          ???
+03AA-   68          PLA
+03AB-   A8          TAY
+03AC-   68          PLA
+03AD-   A6 DF       LDX   $DF
+03AF-   9A          TXS
+03B0-   48          PHA
+03B1-   98          TYA
+03B2-   48          PHA
+03B3-   60          RTS
+03B4-   00          BRK
+03B5-   00          BRK
+03B6-   00          BRK
+03B7-   00          BRK
