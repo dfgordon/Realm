@@ -1,4 +1,4 @@
-set pause to 2
+set pause to 1
 set clean_first to 1
 set realm_path to "/Users/dan/Documents/appleii/Realm/"
 set src_folder to realm_path & "source/"
@@ -21,11 +21,11 @@ tell application "Virtual ]["
 	end tell
 end tell
 
-set s1 to {{"ALCHEMIST", 2048, 1, 0, 0, 0}, {"ARCHWIZ", 3072, 1, 0, 0, 0}, {"BARON", 2048, 0, 1, 0, 0}}
-set s2 to {{"CHAIN", 4096, 1, 1, 1, 0}, {"COMBAT", 16384, 0, 0, 1, 0}, {"DUNGEON", 16384, 0, 0, 1, 0}}
-set s3 to {{"FOOD", 3072, 1, 1, 0, 0}, {"HIGH PRIEST!", 2048, 0, 0, 1, 0}, {"LIBRARY", 2048, 1, 1, 0, 0}}
-set s4 to {{"MORDOCK!", 2048, 0, 0, 1, 0}, {"OUTSIDE", 16384, 1, 1, 0, 0}, {"PUB", 3072, 1, 1, 0, 0}, {"SAGE", 3072, 1, 0, 0, 0}}
-set s5 to {{"SAVE GAME", 2048, 1, 0, 0, 0}, {"SHIPYARD", 3072, 1, 1, 0, 0}, {"TCOMBAT", 16384, 1, 1, 0, 0}}
+set s1 to {{"ALCHEMIST", 2048, 1, 0, 0, 0}, {"ARCHWIZ", 2816, 1, 0, 0, 0}, {"BARON", 2048, 0, 1, 0, 0}}
+set s2 to {{"CHAIN", 4096, 1, 1, 1, 0}, {"COMBAT", 16384, 1, 1, 1, 0}, {"DUNGEON", 16384, 0, 0, 1, 0}}
+set s3 to {{"FOOD", 2816, 1, 1, 0, 0}, {"HIGH PRIEST!", 2048, 0, 0, 1, 0}, {"LIBRARY", 2048, 1, 1, 0, 0}}
+set s4 to {{"MORDOCK!", 2048, 0, 0, 1, 0}, {"OUTSIDE", 16384, 1, 1, 0, 0}, {"PUB", 2816, 1, 1, 0, 0}, {"SAGE", 2816, 1, 0, 0, 0}}
+set s5 to {{"SAVE GAME", 2048, 1, 0, 0, 0}, {"SHIPYARD", 2816, 1, 1, 0, 0}}
 set s6 to {{"TEMPLE", 2048, 1, 1, 0, 0}, {"TOWN", 16384, 1, 1, 0, 0}, {"WEAPARM", 2048, 1, 1, 0, 0}}
 
 set s7 to {{"AUTOSTART", 0, 1, 0, 0, 0}, {"GUTEN TAG", 0, 1, 0, 0, 1}, {"LAUNCH", 0, 0, 0, 0, 1}}
@@ -37,11 +37,23 @@ set disk_list to {0, 1, 2, 3}
 
 set disk_name to {"realm-master.DO", "realm-dungeon.DO", "realm-monster.DO", "realm-character.DO"}
 
+set do_all to 0
 repeat with ndisk in disk_list
 
-	set theDialogText to "Deploy Disk " & ndisk & " (" & item (ndisk + 1) of disk_name & ") ? "
-	display dialog theDialogText buttons {"Yes", "No"}
-	if button returned of result = "Yes" then
+	set do_this to 0
+	if do_all = 0 then
+		set theDialogText to "Deploy Disk " & ndisk & " (" & item (ndisk + 1) of disk_name & ") ? "
+		display dialog theDialogText buttons {"Yes", "No", "All"}
+		set dres to button returned of result
+		if dres = "All" then
+			set do_all to 1
+		end if
+		if dres = "Yes" then
+			set do_this to 1
+		end if
+	end if
+
+	if do_this = 1 or do_all = 1 then
 
 		tell application "Virtual ]["
 			set depDisk to disk folder & (item (ndisk + 1) of disk_name)
