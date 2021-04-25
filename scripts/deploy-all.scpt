@@ -116,6 +116,9 @@ repeat with ndisk in disk_list
 							set hb to word 2 of line 22 of the screen text
 							set len to hb * 256 + lb - addr + 1
 							type line "BSAVE " & src & ",A" & addr & ",L" & len & ",D2"
+							if addr0 = 2816 and len > 1279 or addr0 = 2048 and len > 2047 then
+								display dialog "WARNING: program " & src & " is too long"
+							end if
 							delay pause
 						end if
 					end tell
