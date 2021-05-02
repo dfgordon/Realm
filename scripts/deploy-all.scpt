@@ -12,7 +12,7 @@ tell application "Virtual ]["
 	close every machine saving no
 	make new AppleIIe
 	delay 0.5
-	set startDisk to disk folder & "realm-source.DO"
+	set startDisk to disk folder & "DOS33 Master.DO"
 	tell front machine
 		set monochrome screen to false
 		set speed to maximum
@@ -21,10 +21,10 @@ tell application "Virtual ]["
 	end tell
 end tell
 
-set s1 to {{"ALCHEMIST", 2048, 1, 0, 0, 0}, {"ARCHWIZ", 2816, 1, 0, 0, 0}, {"BARON", 2048, 0, 1, 0, 0}}
+set s1 to {{"ALCHEMIST", 2048, 1, 1, 0, 0}, {"ARCHWIZ", 2816, 1, 0, 0, 0}, {"BARON", 2048, 0, 1, 0, 0}}
 set s2 to {{"CHAIN", 4096, 1, 1, 1, 0}, {"COMBAT", 16384, 1, 1, 1, 0}, {"DUNGEON", 16384, 0, 0, 1, 0}}
-set s3 to {{"FOOD", 2816, 1, 1, 0, 0}, {"HIGH PRIEST!", 2048, 0, 0, 1, 0}, {"LIBRARY", 2048, 1, 1, 0, 0}}
-set s4 to {{"MORDOCK!", 2048, 0, 0, 1, 0}, {"OUTSIDE", 16384, 1, 1, 0, 0}, {"PUB", 2816, 1, 1, 0, 0}, {"SAGE", 2816, 1, 0, 0, 0}}
+set s3 to {{"FOOD", 2816, 1, 1, 0, 0}, {"HIGH PRIEST!", 4096, 0, 0, 1, 0}, {"LIBRARY", 2048, 1, 1, 0, 0}}
+set s4 to {{"MORDOCK!", 16384, 0, 0, 1, 0}, {"OUTSIDE", 16384, 1, 1, 0, 0}, {"PUB", 2816, 1, 1, 0, 0}, {"SAGE", 2816, 1, 0, 0, 0}}
 set s5 to {{"SAVE GAME", 2048, 1, 0, 0, 0}, {"SHIPYARD", 2816, 1, 1, 0, 0}}
 set s6 to {{"TEMPLE", 2048, 1, 1, 0, 0}, {"TOWN", 16384, 1, 1, 0, 0}, {"WEAPARM", 2048, 1, 1, 0, 0}}
 
@@ -116,7 +116,7 @@ repeat with ndisk in disk_list
 							set hb to word 2 of line 22 of the screen text
 							set len to hb * 256 + lb - addr + 1
 							type line "BSAVE " & src & ",A" & addr & ",L" & len & ",D2"
-							if addr0 = 2816 and len > 1279 or addr0 = 2048 and len > 2047 then
+							if addr0 = 2816 and len > 1279 or addr0 = 2048 and len > 2047 or addr0 = 16384 and len > 11519 or addr0 = 4096 and len > 1933 then
 								display dialog "WARNING: program " & src & " is too long"
 							end if
 							delay pause
