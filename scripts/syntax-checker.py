@@ -5,7 +5,7 @@ This script does some basic checks.'''
 import glob
 import re
 
-files = glob.glob("../source/*.txt")
+files = glob.glob("../source/*.bas")
 
 for path in files:
 
