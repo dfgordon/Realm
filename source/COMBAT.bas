@@ -277,7 +277,7 @@
  3404  IF GD$ = "L" OR GD$ = "R" THEN WZ% = 2
  3405  IF GD$ = "U" OR GD$ = "M" THEN WZ% = 3
  3406  IF GD$ = "P" OR GD$ = "A" THEN WZ% = 4
- 3407  FOR M = 0 TO 3
+ 3407  I = 0: FOR M = 0 TO 3
  3408  IF  LEFT$(DX$(M),1) = "P" AND VAL ( RIGHT$ (DX$(M),1)) = WZ% THEN I = 70
  3409  NEXT M
  3410  IF I > RND (1) * 99  THEN PRINT "SAVED BY PROTECTION ";WZ%;"! ";: GET A$: RETURN
