@@ -14,12 +14,12 @@ machine_code = [("MRC3",(0,1,2)),
   ("S2",(0,3)),
   ("SDP.INTRP",(0,1,2)),
   ("TOWN.INTRP2",(0,1)),
-  ("DNGN.INTRP",(1,))
+  ("DNGN.INTRP",(2,))
   ]
 
 sprites = [("OUTSPS",(0,1)),
   ("TWNSPS",(0,1)),
-  ("DNGNSPS",(1,))]
+  ("DNGNSPS",(2,))]
 
 frames = [("FRAMEO",(0,1)),
   ("FRAMED",(2,)),
