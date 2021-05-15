@@ -35,7 +35,7 @@ set slist to s1 & s2 & s3 & s4 & s5 & s6 & s7 & s8
 
 set disk_list to {0, 1, 2, 3}
 
-set disk_name to {"realm-master.DO", "realm-dungeon.DO", "realm-monster.DO", "realm-setup.DO"}
+set disk_name to {"realm-dos33-master.DO", "realm-dos33-dungeon.DO", "realm-dos33-monster.DO", "realm-dos33-setup.DO"}
 
 set do_all to 0
 repeat with ndisk in disk_list
@@ -89,7 +89,6 @@ repeat with ndisk in disk_list
 				tell application "Virtual ]["
 					tell front machine
 						type line "HOME: PRINT \"Processing " & src & "\""
-						#type line "DELETE " & src
 						if addr0 = 0 then
 							delay pause
 							type line "NEW"

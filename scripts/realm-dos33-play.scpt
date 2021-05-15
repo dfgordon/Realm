@@ -3,8 +3,8 @@ tell application "Virtual ]["
 	close every machine saving no
 	make new AppleIIe
 	delay 0.5
-	set dsk1 to disk folder & "realm-master.DO"
-	set dsk2 to disk folder & "realm-monster.DO"
+	set dsk1 to disk folder & "realm-dos33-master.DO"
+	set dsk2 to disk folder & "realm-dos33-monster.DO"
 	tell front machine
 		set monochrome screen to false
 		set scanlines to true
