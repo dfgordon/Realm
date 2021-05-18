@@ -1,4 +1,4 @@
-Realm Deployment Workflow
+DOS 3.3 Deployment Workflow
 =========================
 
 This is the workflow for deployment to four 5.25 inch floppy disks, using DOS 3.3.  The workflow requires using `CiderPress` on Windows, and `Virtual ][` on Macintosh.
@@ -9,11 +9,11 @@ This is the workflow for deployment to four 5.25 inch floppy disks, using DOS 3.
  * `realm-monster` (disk2), a blank disk, do not include DOS
  * `realm-setup` (disk3), bootable with greeting program `GUTEN TAG`
 2. The content of the greeting program is not important, as it will be overwritten.
-3. Run the `deploy-binaries.py` script.  This gathers machine code, map files, and artwork, and puts them into four directories in correspondence with the four disks.
+3. Run the `deploy-binaries-dos33.py` script.  This gathers machine code, map files, and artwork, and puts them into four directories in correspondence with the four disks.
 4. Use `CiderPress` to copy the contents of the directories onto the corresponding disk images.  Use multiple selection to copy all the files for a given disk at once.
 5. Use `CiderPress` to remove the `.TXT` extension from the text files
 6. Move the disk images to the Macintosh, putting them in the `Virtual ][` `disk folder`
-7. Run the `deploy-all.scpt` script.  This reads the BASIC programs from the Mac, enters them line by line into the virtual machine, figures out their size, and saves them as binaries onto the appropriate deployment disk images.  The user is prompted for which disks to deploy.  This script may take a couple minutes.
+7. Run the `deploy-bas-dos33.scpt` script.  This reads the BASIC programs from the Mac, enters them line by line into the virtual machine, figures out their size, and saves them as binaries onto the appropriate deployment disk images.  The user is prompted for which disks to deploy.  This script may take a couple minutes.
 	* For a fresh deployment, there will be several (non-fatal) errors, because the script tries to delete the existing deployed files.  This unfortunately will slow down `Virtual ][`, because it will change speed in response to the bell sound.
 
 Pure Windows Deployment
@@ -28,3 +28,26 @@ Gotchas
 * All modern-side scripts assume the directory structure `~/Documents/appleii/Realm`
 * `deploy-all.scpt` has my personal path hard coded, and also assumes disk images are in the `disk folder` that is setup in `Virtual ][`
 * `deploy-all.scpt` assumes the DOS 3.3 master disk is in the `disk folder`.  This could be replaced with any bootable disk that presents the `FP` prompt.
+
+ProDOS Deployment Workflow
+==========================
+
+1. Prepare a single 800K disk image with the following structure:
+     * Volume name `REALM.DISK`
+     * Copy files `PRODOS` and `BASIC.SYSTEM` to the root directory
+     * Create a directory `REALM`
+        * Add subdirectories `MAPS`, `XMAPS`, `MONSTERS`, `PARTIES`, `BIN`, `PROG`
+2. Make a startup program with two lines:
+ * `10 PRINT CHR$(4);"PREFIX REALM"`
+ * `20 PRINT CHR$(4);"RUN PROG/LAUNCH"`
+ * Save this program in the root directory as `STARTUP` and in the `REALM` directory as `START.REALM`
+3. Add files using CiderPress
+ * `DD` and `TITLE.PIC` go to the `REALM` (remove `.TXT`)
+ * Windows side `arrinea-maps` goes to `REALM/MAPS`
+ * Windows side `exo-maps` goes to `REALM/XMAPS`
+ * Windows side `artwork-squeezed` goes to `REALM/MONSTERS`
+ * Windows side `machine-code` goes to `REALM/BIN`
+ * Windows side `sprites` goes to `REALM/BIN`
+ * Windows side `source/MONSTERS.TXT` goes to `REALM/MONSTERS/MONSTERS` (remove `.TXT`)
+4. Move the disk image to the Macintosh, putting it in the `Virtual ][` `disk folder`
+5. Run the `deploy-bas-prodos.scpt` script.  This works the same as the DOS 3.3 version, only it is a bit simpler since there is no duplication across multiple disks.

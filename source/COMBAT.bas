@@ -29,14 +29,14 @@
  270  IF A$ = "R" THEN 2800
  280  GOTO 204
 
- 300  IF W$ = "AX+" THEN WA = 20:WB = 70:WR = -1
- 301  IF W$ = "MA+" THEN WA = 15:WB = 75
- 302  IF W$ = "MO+" THEN WA = 25:WB = 70
- 303  IF W$ = "DA+" THEN WA = 15:WB = 65:WR = -1
- 304  IF W$ = "LO+" THEN WA = 30:WB = 80
- 305  IF W$ = "BR+" THEN WA = 35:WB = 80
- 306  IF W$ = "2H+" THEN WA = 45:WB = 80
- 307  IF W$ = "BO+" THEN WA = 20:WB = 80:WR = 1
+ 300  IF W$ = "AX+" THEN WA = 25:WB = 90:WR = -1
+ 301  IF W$ = "MA+" THEN WA = 20:WB = 95
+ 302  IF W$ = "MO+" THEN WA = 40:WB = 70
+ 303  IF W$ = "DA+" THEN WA = 20:WB = 80:WR = -1
+ 304  IF W$ = "LO+" THEN WA = 35:WB = 80
+ 305  IF W$ = "BR+" THEN WA = 40:WB = 80
+ 306  IF W$ = "2H+" THEN WA = 50:WB = 80
+ 307  IF W$ = "BO+" THEN WA = 25:WB = 90:WR = 1
  308  IF W$ = "AXE" THEN WA = 15:WB = 60:WR = -1
  309  IF W$ = "MAE" THEN WA = 10:WB = 60
  310  IF W$ = "MOR" THEN WA = 20:WB = 50
@@ -61,20 +61,20 @@
  330  IF W$ = "FID" THEN WA =  - 50:WB = 70:WR = 1:SC$ = "I":SE$ = "F"
  349  RETURN
 
- 400  IF W$ = "MAE" THEN WA =  - 20:WB = 90:SC$ = "I":MA = (ZA% + 1) / 2 + 1
+ 400  IF W$ = "PHW" THEN WA =  - 20:WB = 90:SC$ = "I":MA = (ZA% + 1) / 2 + 1
  401  IF W$ = "FIL" THEN WA = 12:WB = 80:SC$ = "I":SE$ = "F"
  402  IF W$ = "LIT" THEN WA = 12:WB = 80:SC$ = "I":SE$ = "L"
  403  IF W$ = "ICM" THEN WA =  - 40:WB = 100:SC$ = "I":SE$ = "I":MA = 6
  404  IF W$ = "RAE" THEN WA = 16:WB = 85:SC$ = "I":SE$ = "R"
- 405  IF W$ = "MEM" THEN WA = 10:WB = 90:SC$ = "I":MA = 4
- 406  IF W$ = "SLP" THEN WB = 60:SC$ = "T":SD$ = "PUT TO"+" SLEEP":MA = 3
- 407  IF W$ = "STE" THEN WB = 68:SC$ = "P":SD$ = "TURNED TO"+" STONE"
+ 405  IF W$ = "BOT" THEN WA = 10:WB = 90:SC$ = "I":MA = 4
+ 406  IF W$ = "SLP" THEN WB = 50:SC$ = "T":SD$ = "PUT TO"+" SLEEP":MA = 3
+ 407  IF W$ = "STE" THEN WB = 60:SC$ = "P":WR = 0:SD$ = "TURNED TO"+" STONE"
  408  IF W$ = "PAE" THEN WB = 80:SC$ = "T":SD$ = "PARA"+"LYZED"
- 409  IF W$ = "DIE" THEN WB = 70:SC$ = "P":SD$ = "DISINT"+"EGRATED":MA = 3
- 410  IF W$ = "DEL" THEN WB = 90:SC$ = "P":SD$ = "KIL"+"LED"
- 411  IF W$ = "KIL" THEN WB = 75:SC$ = "P":SD$ = "KIL"+"LED":MA = 5
- 412  IF W$ = "FLE" THEN WA = 14:WB = 80:SC$ = "I":SE$ = "F"
- 413  IF W$ = "LIE" THEN WA = 14:WB = 90:SC$ = "I":SE$ = "L"
+ 409  IF W$ = "DIE" THEN WB = 60:SC$ = "P":SD$ = "DISINT"+"EGRATED":MA = 3
+ 410  IF W$ = "DOW" THEN WB = 90:SC$ = "P":SD$ = "KIL"+"LED"
+ 411  IF W$ = "KIL" THEN WB = 75:SC$ = "P":WR = 0:SD$ = "KIL"+"LED":MA = 5
+ 412  IF W$ = "PUE" THEN WA = 14:WB = 80:SC$ = "I":SE$ = "F"
+ 413  IF W$ = "CON" THEN WA = 20:WB = 90:SC$ = "I":SE$ = "L"
  449  RETURN
 
  500  IF GP%(L) = 8 THEN GOSUB 80: IF M > 16 THEN GP%(L) = 0: RETURN
@@ -131,14 +131,15 @@
  1871 ZA%(L) = ZA%(L) + Z: IF ZA%(L) > (WT%(L) - 1) * 1000 THEN ZA%(L) = (WT%(L) - 1) * 1000
  1875  RETURN
 
- 2000 MA = 1: WB = 0: SE$ = "N": B$ = DX$(L): W$ =  LEFT$ (DX$(L),2) + RIGHT$ (DX$(L),1): GOSUB 400: IF WB = 0 THEN 2910
+ 2000 MA = 1: WB = 0: WR = 1: SE$ = "N": B$ = DX$(L): W$ =  LEFT$ (DX$(L),2) + RIGHT$ (DX$(L),1): GOSUB 400: IF WB = 0 THEN 2910
+ 2001  IF GP%(L) = 0 AND WR = 0 THEN 2910
  2002  HOME: VTAB 21: GOSUB 2300: IF MA > 8 THEN MA = 8
  2006  HOME
  2007  VTAB 21: PRINT "CAST ";B$;" AT": PRINT GO$;"# ";: GET A$:GS =  VAL (A$): PRINT: IF GS < 1 OR GS > GM THEN 2007
  2010  IF GN(GS) = 0 THEN PRINT GS;" IS DEAD.": GOTO 2007
 
  2014  PRINT "-CASTING ";B$;"-": GOSUB 30000
- 2016  I = RND(1) * 99 - ZA% - AH%(L)/5: IF RA$(L) = "ELF" THEN I = I - 18
+ 2016  I = RND(1) * 99 - AH%(L)/5: IF RA$(L) = "ELF" THEN I = I - 10
  2018  IF SC$ = "I" THEN 2040
 
  2020  I = I + GA
