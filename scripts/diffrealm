@@ -1,0 +1,2 @@
+#!/bin/zsh
+diff source/$1 prodos/$1

@@ -46,7 +46,7 @@
  8000  B$ = ""
  8010  IF  PEEK (I) = 0 THEN 8030
  8020  B$ = B$ +  CHR$ ( PEEK (I)):I = I + 1: GOTO 8010
- 8030 A = (40 -  LEN (B$)) / 2: HOME : VTAB 21
+ 8030  A = (40 -  LEN (B$)) / 2: HOME : VTAB 21
  8040  PRINT  TAB( A);B$: FOR P = 0 TO EP: NEXT P
  8050  RETURN
 
