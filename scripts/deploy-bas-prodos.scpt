@@ -76,6 +76,16 @@ if dres contains "deploy BASIC programs" then
 		end repeat
 	end if
 
+	set str to src_folder & "STARTUP.bas"
+	enterProgram(str)
+	tell application "Virtual ]["
+		tell front machine
+			type line "SAVE STARTUP,S7,D1"
+			type line "SAVE REALM/START.REALM,S7,D1"
+			delay pause
+		end tell
+	end tell
+
 	repeat with tuple in slist
 
 		set src to item 1 of tuple

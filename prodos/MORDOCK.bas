@@ -1,4 +1,4 @@
- 5 GM = 1: GN(1) = 1500
+ 5 GM = 1: GN(1) = 2000
  6 GA = 20: GB = 100:GE = 120
  7 GC$ = "NIGHTMARE SWARM":GD$="U":GO$ = "MORDOCK"
 
