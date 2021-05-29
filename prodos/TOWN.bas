@@ -62,7 +62,7 @@
  378  IF A = 8 OR A = 13 THEN GO$ = "DRA"+"GON": RETURN
 
  380  M =  INT (3 *  RND (1))
- 381  IF M = 0 THEN GF = 20:GH = 4:GI$ = "MAGIC " + "MISSILE": RETURN
+ 381  IF M = 0 THEN GF = 20:GH = 4:GI$ = "PHANTOM " + "ARROW": RETURN
  382  IF M = 1 THEN GF = 40:GH = 1:GI$ = "FIRE" + "BALL": RETURN
  383  GF =  - 4:GH = 1:GI$ = "PARA" + "LYZE": RETURN
 
