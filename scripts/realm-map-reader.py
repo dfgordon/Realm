@@ -7,6 +7,7 @@ are the ones that were on the dungeon disk.'''
 
 import pathlib
 import json
+import warnings
 
 src = pathlib.Path.home() / 'Documents' / 'appleii' / 'Realm'
 realms = []
@@ -53,6 +54,10 @@ def town_data(town,bytes):
         mono += [bytes[1650+120*i:1650+120*(i+1)].decode('ascii','ignore').split('\0')[0]]
     map = get_nibbles(bytes[:800],(40,40))
     dmap = get_nibbles(bytes[850:1650],(40,40))
+    for row in dmap:
+        for ch in row:
+            if ch == 'O':
+                warnings.warn('Corpse in town '+name)
     return name,coords,mono,map,dmap
 
 def dungeon_data(dng,bytes):
@@ -62,6 +67,10 @@ def dungeon_data(dng,bytes):
     for i in range(5):
         trove += [bytes[1600+80*i:1600+80*(i+1)].decode('ascii','ignore').split('\0')[0]]
     map = get_nibbles(bytes[:1600],(160,20))
+    for row in map:
+        for ch in row:
+            if ch == 'D':
+                warnings.warn('Corpse in dungeon '+name)
     return name,coords,trove,map
 
 for town in towns:
@@ -92,6 +101,10 @@ for realm in realms:
     with open(realm,'r+b') as f:
         bytes = f.read()
     maps[key] = get_nibbles(bytes,(80,80))
+    for row in maps[key]:
+        for ch in row:
+            if ch == 'L':
+                warnings.warn('Ship in '+key)
 
 with open('text.json','w') as f:
     json.dump(text,f,sort_keys=True,indent=4)

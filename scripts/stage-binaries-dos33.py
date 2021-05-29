@@ -1,7 +1,8 @@
 '''This program stages binary and text files in folders that
 correspond to the contents of a floppy disk image.  They can
 then be transferred en masse using CiderPress.
-The TXT extensions have to be removed by hand.'''
+The TXT extensions have to be removed by hand.
+This worklow is now supplanted by Virtual ][ scripts.'''
 
 import json
 import pathlib
