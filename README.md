@@ -1,17 +1,22 @@
 *Realm* Overview
 =================
 
-*Realm* is a retro adventure game. I developed it for the Apple \]\[ plus in the early 1980's, and updated it for the //e (unenhanced variety) a few years later, but never really finished. It was inspired mainly by [Ultima](https://en.wikipedia.org/wiki/Ultima_I:_The_First_Age_of_Darkness) and [D&D](https://en.wikipedia.org/wiki/Dungeons_%26_Dragons).
+*Realm* is an adventure game written in the 1980's for Apple \]\[, but never released until 2021. Today it can be played on emulators or vintage computers.  It was inspired mainly by [Ultima](https://en.wikipedia.org/wiki/Ultima_I:_The_First_Age_of_Darkness) and [D&D](https://en.wikipedia.org/wiki/Dungeons_%26_Dragons).
+
+Story Synopsis
+===============
+
+Mordock, former Archwizard of Lemphocym, has re-discovered the secrets of the pyramid gates, and taken up his abode in cryptic Wornoth.  From his ethereal stronghold he sends forth the rays of nightmare, and troubles all the Realms.  I, Xavier Francis, eighteenth Baron Lemphocym, attempted an assault on the Iron Tower, and failed.  Find me in the Black Fortress, in unpeopled Fonkrakis, and we will make a last desperate attempt to end the reign of the nightmare dreamer.
 
 Recovery Project
 =================
 
-During the COVID pandemic of 2020/21, I got the old Apple //e working again, and decided to get *Realm* and other things off the vintage storage and onto a modern system.  With modern tools this should be easy, right?
+During the COVID pandemic of 2020/21, a recovery project was initiated.  The project objectives are now essentially complete.  Patches will be applied as needed.
 
 Motivation
 ----------
 
-This project is nostalgic.  It is interesting to look inside a relic I created as a teenager, and compare old and new methodology.  The old was much worse in just about every way, but has charm in being so close to the hardware.
+This project is mainly nostalgic and personal, although given the existence of a vibrant vintage computing community, perhaps it can garner some outside interest.  With this in mind, documentation covers code internals, deployment, installation, and gameplay.
 
 Objective
 ---------
@@ -30,11 +35,17 @@ Boundaries
 ----------
 
 1. Do not disturb any of the original artwork.
-2. Do not disturb any of the original sprites (there is one small exception).
+2. Do not disturb any of the original sprites.
 3. Do not disturb any of the original maps.
 4. Do not change fundamentals of game mechanics.
 
-Story Synopsis
-===============
+Conclusion
+----------
 
-Mordock, former Archwizard of Lemphocym, has re-discovered the secrets of the pyramid gates, and taken up his abode in cryptic Wornoth.  From his ethereal stronghold he sends forth the rays of nightmare, and troubles all the Realms.  I, Xavier Francis, eighteenth Baron Lemphocym, attempted an assault on the Iron Tower, and failed.  Find me in the Black Fortress, in unpeopled Fonkrakis, and we will make a last desperate attempt to end the reign of the nightmare dreamer.
+As expected, the BASIC code benefits greatly from the ability to use a modern editor.  Readability and compactness are the main improvements.  The primary new feature is support for ProDOS.
+
+Machine code documentation is given in broad strokes.  Detailed exposition of how these codes work would be onerous.
+
+Story elements are filled in by way of the monologue system.  The wiki and documentation are complete.
+
+The only change in the artwork is a tiny patch to Mordock's face, which had a color bit conflict that looked quite bad on a modern screen.  The sprites are all exactly as they were found, except that I decided to make special denizens differ from ordinary ones by a single pixel.  Maps are unchanged except for correcting a bad nibble in one dungeon which led to a crash under certain circumstances.  Finally, game mechanics are changed only in certain selection interfaces, and in balancing of spells and weapons.
