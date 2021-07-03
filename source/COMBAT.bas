@@ -56,7 +56,7 @@
  325  IF DW$(L) = "WAND OF STONE" THEN WB = 45:WR = 1:SC$ = "P":SD$ = "TURNED"+" TO STONE"
  326  IF W$ = "STG" THEN WA =  - 50:WB = 90:SC$ = "I"
  327  IF W$ = "STR" THEN WA =  - 65:WB = 90:WR = 1:SC$ = "I"
- 328  IF W$ = "STH" THEN WB = 60:SC$ = "P":SD$ = "KIL"+"LED":MA = -3
+ 328  IF W$ = "STH" THEN WB = 50:SC$ = "P":SD$ = "KIL"+"LED":MA = -3
  329  IF W$ = "LID" THEN WA =  - 50:WB = 80:WR = 1:SC$ = "I":SE$ = "L"
  330  IF W$ = "FID" THEN WA =  - 50:WB = 80:WR = 1:SC$ = "I":SE$ = "F"
  349  RETURN
