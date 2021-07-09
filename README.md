@@ -11,12 +11,12 @@ Mordock, former Archwizard of Lemphocym, has re-discovered the secrets of the py
 Recovery Project
 =================
 
-During the COVID pandemic of 2020/21, a recovery project was initiated.  The project objectives are now essentially complete.  Patches will be applied as needed.
+During the COVID pandemic of 2020/21, a recovery project was initiated.  With release 1.2 the original objectives were met.
 
 Motivation
 ----------
 
-This project is mainly nostalgic and personal, although given the existence of a vibrant vintage computing community, perhaps it can garner some outside interest.  With this in mind, documentation covers code internals, deployment, installation, and gameplay.
+This project is nostalgic and personal, but any wider interest is appreciated.  With this in mind, documentation covers code internals, deployment, installation, and gameplay.
 
 Objective
 ---------
@@ -30,6 +30,7 @@ Scope
 2. Rediscover workings of machine code.
 3. Fill out the story elements, and produce a manual.
 4. Write wiki pages discussing details.
+5. Gameplay enhancements or add-ons (v1.3.0 and later)
 
 Boundaries
 ----------
@@ -48,4 +49,6 @@ Machine code documentation is given in broad strokes.  Detailed exposition of ho
 
 Story elements are filled in by way of the monologue system.  The wiki and documentation are complete.
 
-The only change in the artwork is a tiny patch to Mordock's face, which had a color bit conflict that looked quite bad on a modern screen.  The sprites are all exactly as they were found, except that I decided to make special denizens differ from ordinary ones by a single pixel.  Maps are unchanged except for correcting a bad nibble in one dungeon which led to a crash under certain circumstances.  Finally, game mechanics are changed only in certain selection interfaces, and in balancing of spells and weapons.
+The only change in the artwork is a tiny patch to Mordock's face, which had a color bit conflict that looked quite bad on a modern screen.  The sprites are all exactly as they were found, except that I decided to make special denizens differ from ordinary ones by a single pixel.  Maps are unchanged except for correcting a bad nibble in one dungeon which led to a crash under certain circumstances.  
+
+Game mechanics are changed only in interface details, and in balancing of spells and weapons.  The main interface improvement is automatic combat-resolution.
