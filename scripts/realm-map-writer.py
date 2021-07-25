@@ -8,6 +8,8 @@ import json
 import pathlib
 
 dest = pathlib.Path.home() / 'Documents' / 'appleii' / 'Realm'
+realm_name = ['ABYSS','ARRINEA','FONKRAKIS','WORNOTH']
+realm_dir = ['exo-maps','arrinea-maps','exo-maps','exo-maps']
 
 def townfile(coords):
     t = 'TOWNPIC.' + coords[0] + ' ' + coords[1] + '#068000'
@@ -20,6 +22,10 @@ def xtownfile(coords):
 def dungeonfile(coords):
     d = 'DNGPIC.' + coords[0] + ' ' + coords[1] + '#068000'
     return str(dest / 'exo-maps'/ d)
+
+def realmfile(idx):
+    d = realm_name[idx] + '#068000'
+    return str(dest / realm_dir[idx] / d)
 
 def encode_terrain(c):
     return c.encode('ascii')[0] -'A'.encode('ascii')[0]
@@ -78,6 +84,13 @@ def save_dungeons():
         with open(dungeonfile(coords),'w+b') as f:
             f.write(bytes[:2030])
 
+def save_realms():
+    for idx in range(4):
+        bytes = pack_map(maps[realm_name[idx]])
+        with open(realmfile(idx),'w+b') as f:
+            f.write(bytes)
+
 save_towns(False)
 save_towns(True)
 save_dungeons()
+save_realms()
