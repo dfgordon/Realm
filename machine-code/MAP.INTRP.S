@@ -7,15 +7,15 @@
 FAC1     EQU   $06        ; FACTOR IN MUL8
 FAC2     EQU   $07        ; FACTOR IN MUL8
 PROD     EQU   $08        ; PRODUCT IN MUL8 $08,$09
-ZP00     EQU   $1E
-SPTR     EQU   $CE        ; SUBMAP POINTER $CE,$CF
+DELTA    EQU   $1E
+SPTR     EQU   $CE        ; BACKING SUBMAP $CE,$CF
 IDX      EQU   $D7        ; OUTER LOOP INDEX 1
 IDY      EQU   $E3        ; OUTER LOOP INDEX 2
 SCRPTR   EQU   $EB        ; SCREEN POINTER $EB,$EC
-XBAK     EQU   $ED
-YBAK     EQU   $EE
+DX       EQU   $ED
+DY       EQU   $EE
 TEMP     EQU   $EF
-MPTR     EQU   $FA        ; SUB-MAP PTR $FA,$FB
+MPTR     EQU   $FA        ; INPLACE SUBMAP $FA,$FB
 SROW1    EQU   $FC        ; ROW IN SPRITE
 SROW2    EQU   $FD        ; ROW IN SPRITE
 ZPTR     EQU   $FE        ; GENERAL USE POINTER
@@ -54,19 +54,24 @@ SOFFSET  HEX   0000,1800,3000,4800
          HEX   A002,B802,D002,E802
          HEX   0003,1803,3003,4803
 
-WALKING  EQU   $980
-FLYING   EQU   $998       ; IN DNGSPS THIS IS WALKING
-SAILING  EQU   $908
+WALKING  EQU   $0980
+FLYING   EQU   $0998      ; IN DNGSPS THIS IS WALKING
+SAILING  EQU   $0908
 
-* BYTEMAP OF FORBIDDEN TERRAIN CODES
-* BYTES TAKE VALUE 0 OR 1, INDEX ON CODE
-FORB     HEX   00000000000000000000000000000000
+* ARRAY OF FORBIDDEN TERRAIN CODES
+* FIRST BYTE IS ARRAY COUNT
+FORBT    HEX   060405060A0B0C000000000000000000
+FORBD    HEX   0E000102030405060708090A0B0C0D00
+
+* MOBILE DENIZEN CODES
+MOBILE   HEX   11,19
 
 * ROM ROUTINES
 
 SETCOLOR EQU   $F6F0            ; ARG=X
 BEGLINE  EQU   $F411            ; X,Y=HOR A=VER
 ENDLINE  EQU   $F53A            ; A,X=HOR Y=VER
+COUT     EQU   $FDED
 
 * MACROS TO DO SIMPLE MATH
 * THESE PRESERVE X AND Y
@@ -88,6 +93,23 @@ DEC16    MAC
          LDA   ]1+1
          SBC   #$00
          STA   ]1+1
+         <<<
+
+NEGB     MAC
+         LDA   ]1
+         EOR   #$FF
+         STA   ]1
+         INC   ]1
+         <<<
+
+NEGW     MAC
+         LDA   ]1
+         EOR   #$FF
+         STA   ]1
+         LDA   ]1+1
+         EOR   #$FF
+         STA   ]1+1
+         INC16 ]1
          <<<
 
 DIV64    MAC
@@ -183,6 +205,16 @@ ADDBW    MAC              ; ADD BYTE1 TO WORD2
          STA   ]2+1
          <<<
 
+SUBBW    MAC              ; SUB BYTE1 FROM WORD2
+         SEC
+         LDA   ]2
+         SBC   ]1
+         STA   ]2
+         LDA   ]2+1
+         SBC   #$00
+         STA   ]2+1
+         <<<
+
 ADDWW    MAC              ; ADD WORD1 TO WORD2
          CLC
          LDA   ]1
@@ -236,6 +268,26 @@ RESTXY   MAC
          STA   Y0
          <<<
 
+PHX      MAC
+         TXA
+         PHA
+         <<<
+
+PHY      MAC
+         TYA
+         PHA
+         <<<
+
+PLX      MAC
+         PLA
+         TAX
+         <<<
+
+PLY      MAC
+         PLA
+         TAY
+         <<<
+
 LONIB    MAC
          AND   #$0F
          <<<
@@ -255,7 +307,7 @@ HINIB    MAC
 MUL8     LDA   #$00       ; MULTIPLY 8 BIT FACTORS
          STA   PROD
          STA   PROD+1
-         STX   XBAK
+         PHX
          LDX   #$08       ; 8 BITS PER BYTE
 :START   LSR   FAC1
          BCC   :CLEAR
@@ -267,7 +319,7 @@ MUL8     LDA   #$00       ; MULTIPLY 8 BIT FACTORS
          ROR   PROD
          DEX
          BNE   :START
-         LDX   XBAK
+         PLX
          RTS
 
 * GET SCREEN ADDRESS OF ANY 7 PIXEL SEGMENT
@@ -365,17 +417,14 @@ INIMPTR  LDA   Y0
          ADDWW MAP0;MPTR ; MPTR = TERRAIN SUBMAP
          JMP   :DEN
 
-:NEG     LDA   Y0
-         EOR   #$FF
-         STA   FAC1
-         INC   FAC1       ; TWOS COMPLEMENT
-         LDA   FAC1
-         MULA  COLS
+:NEG     NEGB  Y0
+         MUL   Y0;COLS
          COPYW PROD;ZPTR
          LSR   ZPTR+1
          ROR   ZPTR
          COPYW MAP0;MPTR
          SUBWW ZPTR;MPTR
+         NEGB  Y0
 
 :DEN     COPYW MPTR;ZPTR
          ADDWW DOFF;ZPTR ; ZPTR = DENIZEN SUBMAP
@@ -392,7 +441,7 @@ LDSUB    LDA   #BUFFER
          STA   IDY
          LDY   SPAN
          DEY
-:YLOOP   STY   YBAK
+:YLOOP   PHY
          JSR   YBOUNDS
          STA   TEMP
          LDX   SPAN
@@ -455,7 +504,7 @@ LDSUB    LDA   #BUFFER
          LDA   COLS
          LSR
          ADDAW ZPTR
-         LDY   YBAK
+         PLY
          DEY
          BMI   :FIN
          JMP   :YLOOP
@@ -465,12 +514,228 @@ LDSUB    LDA   #BUFFER
          STA   SPTR+1
          RTS
 
+* IS TILE FORBIDDEN
+
+CKFORB   PHX
+
+         LDX   FORBT      ; COUNT
+:TLOOP   BEQ   :FINT
+         LDA   FORBT,X
+         CMP   FAC1
+         BEQ   :YES
+         DEX
+         JMP   :TLOOP
+
+:FINT    LDX   FORBD      ; COUNT
+:DLOOP   BEQ   :FIND
+         LDA   FORBD,X
+         CMP   FAC2
+         BEQ   :YES
+         DEX
+         JMP   :DLOOP
+
+:FIND    PLX
+         LDA   #$00
+         RTS
+
+:YES     PLX
+         LDA   #$01
+         RTS
+
+* GET TERRAIN AND DENIZEN
+* IN: MPTR, ZPTR, IDX, DX, DY
+* DY MUST BE ONE OF (-1,0,1)
+
+GETTILE  LDA   COLS
+         LSR
+         STA   PROD
+         LDA   #$00
+         STA   PROD+1     ; PROD IS ROW OFFSET
+         LDA   DY
+         BEQ   :NONE
+         BMI   :DECY
+         JMP   :CONT
+:NONE    LDA   #$00
+         STA   PROD
+         JMP   :CONT
+:DECY    NEGW  PROD
+:CONT    ADDWW PROD;MPTR  ; SIGNED ADD
+         ADDWW PROD;ZPTR
+         LDA   IDX
+         CLC
+         ADC   DX
+         LSR
+         TAY
+         LDA   IDX
+         CLC
+         ADC   DX
+         AND   #$01
+         BNE   :ODD
+         LDA   (MPTR),Y
+         LONIB
+         STA   FAC1
+         LDA   (ZPTR),Y
+         LONIB
+         STA   FAC2
+         JMP   :FIN
+:ODD     LDA   (MPTR),Y
+         HINIB
+         STA   FAC1
+         LDA   (ZPTR),Y
+         HINIB
+         STA   FAC2
+:FIN     SUBWW PROD;MPTR  ; SIGNED SUB
+         SUBWW PROD;ZPTR
+         RTS
+
+* SET ANY MAP TILE
+* IN: A, ZPTR, IDX, DX, DY
+* DY MUST BE ONE OF (-1,0,1)
+
+SETTILE  STA   TEMP
+         LDA   COLS
+         LSR
+         STA   PROD
+         LDA   #$00
+         STA   PROD+1     ; PROD IS ROW OFFSET
+         LDA   DY
+         BEQ   :NONE
+         BMI   :DECY
+         JMP   :CONT
+:NONE    LDA   #$00
+         STA   PROD
+         JMP   :CONT
+:DECY    NEGW  PROD
+:CONT    ADDWW PROD;ZPTR  ; SIGNED ADD
+         LDA   IDX
+         CLC
+         ADC   DX
+         LSR
+         TAY
+         LDA   IDX
+         CLC
+         ADC   DX
+         AND   #$01
+         BNE   :ODD
+         LDA   (ZPTR),Y
+         AND   #$F0
+         ORA   TEMP
+         STA   (ZPTR),Y
+         JMP   :FIN
+:ODD     ASL   TEMP
+         ASL   TEMP
+         ASL   TEMP
+         ASL   TEMP
+         LDA   (ZPTR),Y
+         AND   #$0F
+         ORA   TEMP
+         STA   (ZPTR),Y
+:FIN     SUBWW PROD;ZPTR  ; SIGNED SUB
+         RTS
+
+* DENIZEN MOVEMENT
+* IN: MPTR, ZPTR, X0, SPAN
+* GUARDS MUST MOVE IN SEQUENCE ALONG X THEN Y
+* THIS GIVES THE PLAYER AN ADVANTAGE
+
+DMOVE    LDA   #BUFFER
+         STA   SPTR
+         LDA   #>BUFFER
+         STA   SPTR+1
+         LDY   SPAN
+         DEY
+:YLOOP   PHY
+         LDX   SPAN
+         DEX
+:XLOOP   TXA
+         CLC
+         ADC   X0
+         STA   IDX
+         TXA
+         TAY
+         LDA   (SPTR),Y
+         CMP   MOBILE
+         BEQ   :MOVEX
+         CMP   MOBILE+1
+         BEQ   :MOVEX
+:NEXTX   DEX
+         BPL   :XLOOP
+         JMP   :NEXTY
+:MOVEX   LDA   #$00
+         STA   DX
+         STA   DY
+         CPX   RNG
+         BEQ   :MOVEY
+         BMI   :XNEG
+         LDA   #$FF
+         STA   DX
+         JMP   :DX
+:XNEG    LDA   #$01
+         STA   DX
+:DX      JSR   GETTILE
+         JSR   CKFORB
+         BNE   :NOGOX
+         LDA   DX
+         PHA
+         LDA   #$00
+         STA   DX
+         JSR   GETTILE
+         LDA   #$0F
+         JSR   SETTILE
+         PLA
+         STA   DX
+         LDA   FAC2
+         JSR   SETTILE
+         JMP   :MOVEY
+:NOGOX   LDA   #$00
+         STA   DX
+:MOVEY   PLY
+         PHY
+         CPY   RNG
+         BEQ   :NEXTX
+         BMI   :YPOS      ; NB REVERSE ORDER
+         LDA   #$01
+         STA   DY
+         JMP   :DY
+:YPOS    LDA   #$FF
+         STA   DY
+:DY      JSR   GETTILE
+         JSR   CKFORB
+         BNE   :NEXTX
+         LDA   DY
+         PHA
+         LDA   #$00
+         STA   DY
+         JSR   GETTILE
+         LDA   #$0F
+         JSR   SETTILE
+         PLA
+         STA   DY
+         LDA   FAC2
+         JSR   SETTILE
+         JMP   :NEXTX
+:NEXTY   ADDBW SPAN;SPTR
+         LDA   COLS
+         LSR
+         ADDAW MPTR
+         LDA   COLS
+         LSR
+         ADDAW ZPTR
+         PLY
+         DEY
+         BMI   :FIN
+         JMP   :YLOOP
+:FIN     LDA   #BUFFER    ; RESET SPTR
+         STA   SPTR
+         LDA   #>BUFFER
+         STA   SPTR+1
+         RTS
 
 * LOAD CURRENT ROW OF SPRITE PTRS INTO STAB
 * IN: SPAN, SPTR=CURRENT SUBMAP ROW
 
-LDSTAB   STX   XBAK
-         STY   YBAK
+LDSTAB   PHX
+         PHY
          LDY   SPAN
          DEY
 :LOOP    LDA   (SPTR),Y
@@ -490,16 +755,33 @@ LDSTAB   STX   XBAK
          STA   STAB+1,X
          DEY
          BPL   :LOOP
-         LDX   XBAK
-         LDY   YBAK
+         PLY
+         CPY   RNG
+         BEQ   :PARTY
+         PLX
+         RTS
+:PARTY   LDA   RNG
+         ASL
+         TAX
+         LDA   #WALKING
+         STA   STAB,X
+         LDA   #>WALKING
+         STA   STAB+1,X
+         PLX
          RTS
 
-* PAINT ROUTINE
+* MAIN PAINT ROUTINE
 
 PAINT    INITXY
          JSR   INIMPTR
          JSR   LDSUB
-         LDA   OFFSET
+         LDA   HOSTILE
+         BEQ   :PAINT
+         JSR   INIMPTR
+         JSR   DMOVE
+         JSR   INIMPTR
+         JSR   LDSUB
+:PAINT   LDA   OFFSET
          LONIB            ; TILE ROWS
          MULA  #$0C
          LDA   PROD       ; EXPECT 8 BITS
@@ -509,17 +791,17 @@ PAINT    INITXY
          STA   XPIX7
          JSR   GETSCR     ; INIT SCRPTR PTR
 
-         LDA   SPAN
-         TAY
+         LDY   SPAN
+         DEY
 
-:YLOOP   STY   YBAK       ; LOOP OVER ROWS
+:YLOOP   PHY              ; LOOP OVER ROWS
          JSR   LDSTAB     ; LOAD SPRITE PTRS
          LDA   #$00
          STA   SROW1
          LDA   #$0C
          STA   SROW2
 
-:PLOOP   LDA   SPAN       ; LOOP OVER PIXELS
+:PLOOP   LDA   SPAN       ; LOOP OVER PIXEL ROWS
          ASL
          TAX
 
@@ -556,21 +838,48 @@ PAINT    INITXY
          BNE   :PLOOP
 
          ADDBW SPAN;SPTR  ; ADV SUBMAP PTR 1 ROW
-         LDY   YBAK
+         PLY
          DEY
-         BNE   :YLOOP
+         BPL   :YLOOP
          RESTXY
          RTS
 
 * GET TILE INFORMATION (NOT FOR INNER LOOPS)
 * IN: X0, Y0, MAP0, DOFF, COLS
-* RETURN: TERR CODE IN BUFFER,0
+* RETURN: TERRAIN IN FAC1, DENIZEN IN FAC2
 
-GET      LDA   #$01
-         STA   SPAN
-         JSR   INIMPTR
-         JSR   LDSUB
+GET      JSR   INIMPTR
+         LDA   X0
+         STA   IDX
+         LDA   #$00
+         STA   DX
+         STA   DY
+         JSR   GETTILE
          RTS
+
+* SET TILE INFORMATION (NOT FOR INNER LOOPS)
+* IN: X0, Y0, MAP0, DOFF, COLS, FAC1, FAC2
+* NEGATIVE CODES ARE NOT WRITTEN
+
+SET      LDA   FAC1
+         PHA
+         LDA   FAC2
+         PHA
+         JSR   INIMPTR
+         LDA   X0
+         STA   IDX
+         LDA   #$00
+         STA   DX
+         STA   DY
+         PLA
+         BMI   :TERR
+         JSR   SETTILE
+:TERR    COPYW MPTR;ZPTR
+         PLA
+         BMI   :FIN
+         JSR   SETTILE
+:FIN     RTS
+
 
 * DRAW A BOX FROM (ZPTR,YPIX) TO (SPTR,IDY)
 
