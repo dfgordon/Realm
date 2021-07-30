@@ -32,9 +32,9 @@ SPAN     EQU   $1FF4      ; 2*RNG+1
 RNG      EQU   $1FF5      ; MAP VISIBLE RANGE
 OFFSET   EQU   $1FF6      ; TILE OFFSETS, 2 NIBBLES
 SADDR    EQU   $1FF7      ; PTR TO SPRITE TABLE
-SCRATCH  EQU   $1FF9
+MAPTYP   EQU   $1FF9      ; $00,$01,$02
 HOSTILE  EQU   $1FFA
-TRAVEL   EQU   $1FFB
+TRAVEL   EQU   $1FFB      ; $00,$10,$20
 MAP0     EQU   $1FFC      ; MAP POINTER
 X0       EQU   $1FFE
 Y0       EQU   $1FFF
@@ -54,14 +54,26 @@ SOFFSET  HEX   0000,1800,3000,4800
          HEX   A002,B802,D002,E802
          HEX   0003,1803,3003,4803
 
-WALKING  EQU   $0980
-FLYING   EQU   $0998      ; IN DNGSPS THIS IS WALKING
-SAILING  EQU   $0908
+* OFFSETS TO PARTY SPRITES (PADDED)
+* ADDR = WALKING + MAPTYP*2 + TRAVEL/2
+WALKING  HEX   9801,8001,9801,0000
+SAILING  HEX   0801,0801,0801,0000
+FLYING   HEX   8001,8001,8001,0000
 
-* ARRAY OF FORBIDDEN TERRAIN CODES
-* FIRST BYTE IS ARRAY COUNT
-FORBT    HEX   060405060A0B0C000000000000000000
-FORBD    HEX   0E000102030405060708090A0B0C0D00
+* ARRAYS OF FORBIDDEN TERRAIN CODES
+* ADDR = FRBOUT + MAPTYP*24 + TRAVEL/2
+* FIRST BYTE OF EACH ROW IS ARRAY SIZE
+* NEGATIVE FIRST BYTE FLIPS TO ALLOWED
+FRBOUT   HEX   06,02,04,05,06,08,09,00
+         HEX   FD,04,07,0E,00,00,00,00
+         HEX   01,05,00,00,00,00,00,00
+FRBTWN   HEX   04,04,05,06,0A,00,00,00
+         HEX   FF,04,00,00,00,00,00,00
+         HEX   00,00,00,00,00,00,00,00
+FRBDNG   HEX   05,02,04,05,06,08,00,00
+         HEX   FF,04,00,00,00,00,00,00
+         HEX   00,00,00,00,00,00,00,00
+FRBGRD   HEX   06,04,05,06,0A,0B,0C,00
 
 * MOBILE DENIZEN CODES
 MOBILE   HEX   11,19
@@ -148,6 +160,16 @@ MULA     MAC              ; PROD = V1 * A
          LDA   ]1
          STA   FAC2
          JSR   MUL8
+         <<<
+
+MUL24    MAC              ; ONLY FOR 8 BITS
+         ASL
+         ASL
+         ASL
+         STA   FAC1
+         ASL
+         CLC
+         ADC   FAC1
          <<<
 
 MUL40    MAC              ; ONLY FOR 8 BITS
@@ -300,6 +322,16 @@ HINIB    MAC
          LSR
          <<<
 
+SELNIB   MAC              ; X SELECTS NIBBLE
+         STA   PROD+1
+         LONIB
+         STA   PROD
+         LDA   PROD+1
+         HINIB
+         STA   PROD+1
+         LDA   PROD,X
+         <<<
+
          DO    1
 
 * MULTIPLY TWO BYTES TO FORM A WORD
@@ -369,7 +401,7 @@ ADVPROW  INC   YPIX
 :RECALC  JSR   GETSCR
          RTS
 
-* CHECK Y BOUNDS (SPOILS X)
+* CHECK Y BOUNDS
 * IN: IDY
 * RETURN: A
 * NB DUNGEONS CANNOT RELY ON N FLAG
@@ -446,7 +478,8 @@ LDSUB    LDA   #BUFFER
          STA   TEMP
          LDX   SPAN
          DEX
-:XLOOP   TXA
+:XLOOP   PHX
+         TXA
          CLC
          ADC   X0
          STA   IDX
@@ -460,36 +493,28 @@ LDSUB    LDA   #BUFFER
          BPL   :OUT
          LDA   IDX
          AND   #$01
-         BNE   :ODD
+         TAX              ; X = PARITY
          LDA   (MPTR),Y
-         LONIB
+         SELNIB
          STA   FAC1
+         LDA   DOFF+1     ; IF 0 NO DENIZENS
+         PHP
+         LDA   FAC1
+         PLP
+         BEQ   :SAVE
          LDA   (ZPTR),Y
-         LONIB
-         STA   FAC2
-         JMP   :SEL
-:ODD     LDA   (MPTR),Y
-         HINIB
+         SELNIB
+         ADC   #$11
+         CMP   #$1F
+         BPL   :SAVE
          STA   FAC1
-         LDA   (ZPTR),Y
-         HINIB
-         STA   FAC2
-         JMP   :SEL
+         JMP   :SAVE
 :OUT     COPYW MAP0;PROD
          LDY   #$00
          LDA   (PROD),Y
          LONIB
          STA   FAC1
-         LDA   #$0F
-:SEL     CMP   #$0E
-         BPL   :TERR
-         LDA   DOFF+1
-         BEQ   :TERR
-         LDA   FAC2
-         ADC   #$11
-         JMP   :SAVE
-:TERR    LDA   FAC1
-:SAVE    STA   FAC1
+:SAVE    PLX
          TXA
          TAY
          LDA   FAC1
@@ -514,32 +539,69 @@ LDSUB    LDA   #BUFFER
          STA   SPTR+1
          RTS
 
-* IS TILE FORBIDDEN
+* IS TILE FORBIDDEN TO PARTY
+* IN: FAC1,FAC2
 
-CKFORB   PHX
-
-         LDX   FORBT      ; COUNT
-:TLOOP   BEQ   :FINT
-         LDA   FORBT,X
+CHKTIL   LDA   #FRBOUT
+         STA   PROD
+         LDA   #>FRBOUT
+         STA   PROD+1
+         LDA   TRAVEL
+         LSR
+         ADDAW PROD
+         LDA   FAC1
+         PHA
+         LDA   MAPTYP
+         MUL24
+         ADDAW PROD
+         PLA
+         STA   FAC1
+         LDY   #$00
+         LDA   (PROD),Y   ; COUNT
+         BMI   :FLIP      ; NEG COUNT FLIPS MEANING
+         TAY
+:TLOOP   BEQ   :TERROK
+         LDA   (PROD),Y
          CMP   FAC1
-         BEQ   :YES
+         BEQ   :FORBID
+         DEY
+         JMP   :TLOOP
+:TERROK  LDA   DOFF+1
+         BEQ   :ALLOW
+         LDA   HOSTILE
+         BNE   :ALLOW
+         LDA   FAC2
+         BEQ   :FORBID
+:ALLOW   LDA   #$00
+         RTS
+:FORBID  LDA   #$01
+         RTS
+:FLIP    EOR   #$FF
+         TAY
+         INY
+:ALOOP   BEQ   :FORBID
+         LDA   (PROD),Y
+         CMP   FAC1
+         BEQ   :TERROK
+         DEY
+         JMP   :ALOOP
+
+* IS TILE FORBIDDEN TO GUARDS
+* IN: FAC1,FAC2
+
+CHKGRD   LDX   FRBGRD     ; COUNT
+:TLOOP   BEQ   :TERROK
+         LDA   FRBGRD,X
+         CMP   FAC1
+         BEQ   :FORBID
          DEX
          JMP   :TLOOP
-
-:FINT    LDX   FORBD      ; COUNT
-:DLOOP   BEQ   :FIND
-         LDA   FORBD,X
-         CMP   FAC2
-         BEQ   :YES
-         DEX
-         JMP   :DLOOP
-
-:FIND    PLX
+:TERROK  LDA   FAC2
+         CMP   #$0E
+         BMI   :FORBID
          LDA   #$00
          RTS
-
-:YES     PLX
-         LDA   #$01
+:FORBID  LDA   #$01
          RTS
 
 * GET TERRAIN AND DENIZEN
@@ -564,28 +626,24 @@ GETTILE  LDA   COLS
          LDA   IDX
          CLC
          ADC   DX
+         PHA
          LSR
          TAY
-         LDA   IDX
-         CLC
-         ADC   DX
-         AND   #$01
-         BNE   :ODD
          LDA   (MPTR),Y
-         LONIB
          STA   FAC1
          LDA   (ZPTR),Y
-         LONIB
          STA   FAC2
-         JMP   :FIN
-:ODD     LDA   (MPTR),Y
-         HINIB
-         STA   FAC1
-         LDA   (ZPTR),Y
-         HINIB
-         STA   FAC2
-:FIN     SUBWW PROD;MPTR  ; SIGNED SUB
+         SUBWW PROD;MPTR  ; SIGNED SUB
          SUBWW PROD;ZPTR
+         PLA
+         AND   #$01
+         TAX              ; X = PARITY
+         LDA   FAC1
+         SELNIB           ; NB SPOILS PROD
+         STA   FAC1
+         LDA   FAC2
+         SELNIB
+         STA   FAC2
          RTS
 
 * SET ANY MAP TILE
@@ -610,11 +668,10 @@ SETTILE  STA   TEMP
          LDA   IDX
          CLC
          ADC   DX
+         PHA
          LSR
          TAY
-         LDA   IDX
-         CLC
-         ADC   DX
+         PLA
          AND   #$01
          BNE   :ODD
          LDA   (ZPTR),Y
@@ -647,7 +704,8 @@ DMOVE    LDA   #BUFFER
 :YLOOP   PHY
          LDX   SPAN
          DEX
-:XLOOP   TXA
+:XLOOP   PHX
+         TXA
          CLC
          ADC   X0
          STA   IDX
@@ -658,7 +716,8 @@ DMOVE    LDA   #BUFFER
          BEQ   :MOVEX
          CMP   MOBILE+1
          BEQ   :MOVEX
-:NEXTX   DEX
+:NEXTX   PLX
+         DEX
          BPL   :XLOOP
          JMP   :NEXTY
 :MOVEX   LDA   #$00
@@ -673,7 +732,7 @@ DMOVE    LDA   #BUFFER
 :XNEG    LDA   #$01
          STA   DX
 :DX      JSR   GETTILE
-         JSR   CKFORB
+         JSR   CHKGRD
          BNE   :NOGOX
          LDA   DX
          PHA
@@ -689,8 +748,10 @@ DMOVE    LDA   #BUFFER
          JMP   :MOVEY
 :NOGOX   LDA   #$00
          STA   DX
-:MOVEY   PLY
+:MOVEY   PLX
+         PLY
          PHY
+         PHX
          CPY   RNG
          BEQ   :NEXTX
          BMI   :YPOS      ; NB REVERSE ORDER
@@ -700,7 +761,7 @@ DMOVE    LDA   #BUFFER
 :YPOS    LDA   #$FF
          STA   DY
 :DY      JSR   GETTILE
-         JSR   CKFORB
+         JSR   CHKGRD
          BNE   :NEXTX
          LDA   DY
          PHA
@@ -760,26 +821,35 @@ LDSTAB   PHX
          BEQ   :PARTY
          PLX
          RTS
-:PARTY   LDA   RNG
+:PARTY   PHY
+         LDA   MAPTYP
+         ASL
+         STA   TEMP
+         LDA   TRAVEL
+         LSR
+         CLC
+         ADC   TEMP
+         TAY
+         LDA   WALKING,Y
+         STA   ZPTR
+         LDA   WALKING+1,Y
+         STA   ZPTR+1
+         ADDWW SADDR;ZPTR
+         LDA   RNG
          ASL
          TAX
-         LDA   #WALKING
+         LDA   ZPTR
          STA   STAB,X
-         LDA   #>WALKING
+         LDA   ZPTR+1
          STA   STAB+1,X
+         PLY
          PLX
          RTS
 
 * MAIN PAINT ROUTINE
+* ASSUMES X0,Y0 ALREADY OFFSET
 
-PAINT    INITXY
-         JSR   INIMPTR
-         JSR   LDSUB
-         LDA   HOSTILE
-         BEQ   :PAINT
-         JSR   INIMPTR
-         JSR   DMOVE
-         JSR   INIMPTR
+PAINT    JSR   INIMPTR
          JSR   LDSUB
 :PAINT   LDA   OFFSET
          LONIB            ; TILE ROWS
@@ -841,7 +911,6 @@ PAINT    INITXY
          PLY
          DEY
          BPL   :YLOOP
-         RESTXY
          RTS
 
 * GET TILE INFORMATION (NOT FOR INNER LOOPS)
@@ -880,6 +949,26 @@ SET      LDA   FAC1
          JSR   SETTILE
 :FIN     RTS
 
+* PARTY MOVEMENT (MAIN ROUTINE)
+
+PMOVE    JSR   GET
+         JSR   CHKTIL
+         BNE   :FORBID
+         INITXY
+         LDA   HOSTILE
+         BEQ   :PAINT
+         JSR   INIMPTR
+         JSR   LDSUB
+         JSR   INIMPTR
+         JSR   DMOVE
+:PAINT   JSR   PAINT
+         RESTXY
+         LDA   #$00
+         STA   FAC1
+         RTS
+:FORBID  LDA   #$FF
+         STA   FAC1
+         RTS
 
 * DRAW A BOX FROM (ZPTR,YPIX) TO (SPTR,IDY)
 
