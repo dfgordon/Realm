@@ -1,13 +1,13 @@
-* REALM MAP PAINTER
+* REALM MAP INTERPRETER
 
-         ORG   $1200
+         ORG   $1550      ; ALLOWS BUFFER AT $1F00
 
 * ZERO PAGE USAGE
 
-FAC1     EQU   $06        ; FACTOR IN MUL8
-FAC2     EQU   $07        ; FACTOR IN MUL8
-PROD     EQU   $08        ; PRODUCT IN MUL8 $08,$09
-DELTA    EQU   $1E
+FAC1     EQU   $06        ; FACTOR IN MULBB
+FAC2     EQU   $07        ; FACTOR IN MULBB
+PROD     EQU   $08        ; PRODUCT IN MULBB $08,$09
+YEND     EQU   $1E
 SPTR     EQU   $CE        ; BACKING SUBMAP $CE,$CF
 IDX      EQU   $D7        ; OUTER LOOP INDEX 1
 IDY      EQU   $E3        ; OUTER LOOP INDEX 2
@@ -76,19 +76,24 @@ FRBDNG   HEX   05,02,04,05,06,08,00,00
 FRBGRD   HEX   06,04,05,06,0A,0B,0C,00
 
 * MOBILE DENIZEN CODES
-MOBILE   HEX   11,19
+* ACCESS AS MOBILE,X OR MOBILE+3,X WHERE X = MAPTYP
+MOBILE   HEX   00,11,0F,00,19,0F
+* ACESS AS DERASE,X WHERE X = MAPTYP
+DERASE   HEX   00,0F,07
 
 * ROM ROUTINES
 
-SETCOLOR EQU   $F6F0            ; ARG=X
-BEGLINE  EQU   $F411            ; X,Y=HOR A=VER
-ENDLINE  EQU   $F53A            ; A,X=HOR Y=VER
+SETCOLOR EQU   $F6F0      ; ARG=X
+BEGLINE  EQU   $F411      ; X,Y=HOR A=VER
+ENDLINE  EQU   $F53A      ; A,X=HOR Y=VER
 COUT     EQU   $FDED
 
-* MACROS TO DO SIMPLE MATH
-* THESE PRESERVE X AND Y
+
+* MACROS *****************************
 
          DO    0
+
+* SIMPLE MATH
 
 INC16    MAC
          INC   ]1
@@ -152,14 +157,14 @@ MUL      MAC              ; PROD = V1 * V2
          STA   FAC1
          LDA   ]2
          STA   FAC2
-         JSR   MUL8
+         JSR   MULBB
          <<<
 
 MULA     MAC              ; PROD = V1 * A
          STA   FAC1
          LDA   ]1
          STA   FAC2
-         JSR   MUL8
+         JSR   MULBB
          <<<
 
 MUL24    MAC              ; ONLY FOR 8 BITS
@@ -257,37 +262,13 @@ SUBWW    MAC              ; SUB WORD1 FROM WORD2
          STA   ]2+1
          <<<
 
+* MEMORY MANIPULATIONS
+
 COPYW    MAC
          LDA   ]1
          STA   ]2
          LDA   ]1+1
          STA   ]2+1
-         <<<
-
-INITXY   MAC
-         SEC
-         LDA   X0
-         SBC   RNG
-         STA   X0
-         SEC
-         LDA   Y0
-         SBC   RNG
-         STA   Y0
-         LDA   RNG
-         ASL
-         STA   SPAN
-         INC   SPAN
-         <<<
-
-RESTXY   MAC
-         CLC
-         LDA   X0
-         ADC   RNG
-         STA   X0
-         CLC
-         LDA   Y0
-         ADC   RNG
-         STA   Y0
          <<<
 
 PHX      MAC
@@ -332,11 +313,53 @@ SELNIB   MAC              ; X SELECTS NIBBLE
          LDA   PROD,X
          <<<
 
+* PARAMETER MANIPULATIONS
+
+INITXY   MAC
+         SEC
+         LDA   X0
+         SBC   RNG
+         STA   X0
+         SEC
+         LDA   Y0
+         SBC   RNG
+         STA   Y0
+         LDA   RNG
+         ASL
+         STA   SPAN
+         INC   SPAN
+         <<<
+
+RESETXY  MAC
+         CLC
+         LDA   X0
+         ADC   RNG
+         STA   X0
+         CLC
+         LDA   Y0
+         ADC   RNG
+         STA   Y0
+         <<<
+
+ADVMROW  MAC
+         ADDBW SPAN;SPTR
+         LDA   COLS
+         LSR
+         ADDAW MPTR
+         LDA   COLS
+         LSR
+         ADDAW ZPTR
+         <<<
+
          DO    1
+
+
+* SUBROUTINES ************************
+
 
 * MULTIPLY TWO BYTES TO FORM A WORD
 
-MUL8     LDA   #$00       ; MULTIPLY 8 BIT FACTORS
+MULBB    LDA   #$00       ; MULTIPLY 8 BIT FACTORS
          STA   PROD
          STA   PROD+1
          PHX
@@ -356,7 +379,7 @@ MUL8     LDA   #$00       ; MULTIPLY 8 BIT FACTORS
 
 * GET SCREEN ADDRESS OF ANY 7 PIXEL SEGMENT
 * IN: YPIX = PIXEL ROW, XPIX7 = PIXEL COLUMN / 7
-* OUT: SCRPTR = POINTER TO 7 PIXEL SEGMENT
+* RETURN: SCRPTR = POINTER TO 7 PIXEL SEGMENT
 * ADDR = 8192 + 1024 * (Y%8) + 128 * (Y%64)/8 + 40 * Y/64
 * NOTE: 128*(Y%64)/8 IS NOT 16*(Y%64) DUE TO TRUNCATION
 
@@ -399,6 +422,42 @@ ADVPROW  INC   YPIX
          BPL   :RECALC
          RTS
 :RECALC  JSR   GETSCR
+         RTS
+
+* PREVENT MOVING OFF MAP IN X
+* IN: IDX, DX, COLS
+* RETURN: A
+
+XPREVENT CLC
+         LDA   IDX
+         ADC   DX
+         BMI   :NEG
+         CMP   COLS
+         BPL   :POS
+         LDA   #$00
+         RTS
+:NEG     LDA   #$FF
+         RTS
+:POS     LDA   #$01
+         RTS
+
+* PREVENT MOVING OFF MAP IN Y
+* IN: IDY, DY, ROWS
+* RETURN: A
+* NB DUNGEONS CANNOT RELY ON N FLAG
+
+YPREVENT CLC
+         LDA   IDY
+         ADC   DY
+         CMP   #$FF
+         BEQ   :NEG
+         CMP   ROWS
+         BEQ   :POS
+         LDA   #$00
+         RTS
+:NEG     LDA   #$FF
+         RTS
+:POS     LDA   #$01
          RTS
 
 * CHECK Y BOUNDS
@@ -522,13 +581,7 @@ LDSUB    LDA   #BUFFER
          DEX
          BPL   :XLOOP
          INC   IDY
-         ADDBW SPAN;SPTR
-         LDA   COLS
-         LSR
-         ADDAW MPTR
-         LDA   COLS
-         LSR
-         ADDAW ZPTR
+         ADVMROW
          PLY
          DEY
          BMI   :FIN
@@ -586,10 +639,13 @@ CHKTIL   LDA   #FRBOUT
          DEY
          JMP   :ALOOP
 
-* IS TILE FORBIDDEN TO GUARDS
+* IS TILE FORBIDDEN TO DENIZENS
 * IN: FAC1,FAC2
 
-CHKGRD   LDX   FRBGRD     ; COUNT
+CHKDEN   LDA   MAPTYP
+         CMP   #$02
+         BEQ   :DNGN
+         LDX   FRBGRD     ; COUNT
 :TLOOP   BEQ   :TERROK
          LDA   FRBGRD,X
          CMP   FAC1
@@ -602,6 +658,11 @@ CHKGRD   LDX   FRBGRD     ; COUNT
          LDA   #$00
          RTS
 :FORBID  LDA   #$01
+         RTS
+:DNGN    LDA   #$07
+         CMP   FAC1
+         BNE   :FORBID
+         LDA   #$00
          RTS
 
 * GET TERRAIN AND DENIZEN
@@ -690,19 +751,47 @@ SETTILE  STA   TEMP
 :FIN     SUBWW PROD;ZPTR  ; SIGNED SUB
          RTS
 
-* DENIZEN MOVEMENT
-* IN: MPTR, ZPTR, X0, SPAN
-* GUARDS MUST MOVE IN SEQUENCE ALONG X THEN Y
+* ARTIFICIAL UNINTELLIGENCE (AU)
+* IN: RNG, A = THE RELATIVE TILE INDEX
+* IN: HOSTILE = $01,$FF (AGGRESSIVE,FEARFUL)
+* RETURN: A = TILES TO MOVE (SIGNED BYTE)
+
+DELTA    SEC
+         SBC   RNG
+         PHP
+         BEQ   :TEST
+:GO      PLP
+         BMI   :GOPL
+         LDA   HOSTILE
+         EOR   #$FF
+         CLC
+         ADC   #$01
+         RTS
+:GOPL    LDA   HOSTILE
+         RTS
+:TEST    LDA   HOSTILE
+         CMP   #$01
+         BEQ   :NOGO
+         JMP   :GO
+:NOGO    PLP
+         LDA   #$00
+         RTS
+
+* DENIZEN MOVEMENT (TOWN OR DUNGEON)
+* IN: MPTR, ZPTR, X0, Y0, RNG, SPAN, HOSTILE
+* DENIZENS MUST MOVE IN SEQUENCE ALONG X THEN Y
 * THIS GIVES THE PLAYER AN ADVANTAGE
 
 DMOVE    LDA   #BUFFER
          STA   SPTR
          LDA   #>BUFFER
          STA   SPTR+1
-         LDY   SPAN
-         DEY
-:YLOOP   PHY
-         LDX   SPAN
+         LDA   Y0
+         STA   IDY
+         CLC
+         ADC   SPAN
+         STA   YEND
+:YLOOP   LDX   SPAN
          DEX
 :XLOOP   PHX
          TXA
@@ -712,34 +801,33 @@ DMOVE    LDA   #BUFFER
          TXA
          TAY
          LDA   (SPTR),Y
-         CMP   MOBILE
+         LDY   MAPTYP
+         CMP   MOBILE,Y
          BEQ   :MOVEX
-         CMP   MOBILE+1
+         CMP   MOBILE+3,Y
          BEQ   :MOVEX
 :NEXTX   PLX
          DEX
          BPL   :XLOOP
          JMP   :NEXTY
 :MOVEX   LDA   #$00
-         STA   DX
          STA   DY
-         CPX   RNG
+         TXA
+         JSR   DELTA
+         STA   DX
          BEQ   :MOVEY
-         BMI   :XNEG
-         LDA   #$FF
-         STA   DX
-         JMP   :DX
-:XNEG    LDA   #$01
-         STA   DX
-:DX      JSR   GETTILE
-         JSR   CHKGRD
+:DX      JSR   XPREVENT
+         BNE   :NOGOX
+         JSR   GETTILE
+         JSR   CHKDEN
          BNE   :NOGOX
          LDA   DX
          PHA
          LDA   #$00
          STA   DX
          JSR   GETTILE
-         LDA   #$0F
+         LDY   MAPTYP
+         LDA   DERASE,Y
          JSR   SETTILE
          PLA
          STA   DX
@@ -748,43 +836,35 @@ DMOVE    LDA   #BUFFER
          JMP   :MOVEY
 :NOGOX   LDA   #$00
          STA   DX
-:MOVEY   PLX
-         PLY
-         PHY
-         PHX
-         CPY   RNG
+:MOVEY   SEC
+         LDA   IDY
+         SBC   Y0
+         JSR   DELTA
+         STA   DY
          BEQ   :NEXTX
-         BMI   :YPOS      ; NB REVERSE ORDER
-         LDA   #$01
-         STA   DY
-         JMP   :DY
-:YPOS    LDA   #$FF
-         STA   DY
-:DY      JSR   GETTILE
-         JSR   CHKGRD
+:DY      JSR   YPREVENT
+         BNE   :NEXTX
+         JSR   GETTILE
+         JSR   CHKDEN
          BNE   :NEXTX
          LDA   DY
          PHA
          LDA   #$00
          STA   DY
          JSR   GETTILE
-         LDA   #$0F
+         LDY   MAPTYP
+         LDA   DERASE,Y
          JSR   SETTILE
          PLA
          STA   DY
          LDA   FAC2
          JSR   SETTILE
          JMP   :NEXTX
-:NEXTY   ADDBW SPAN;SPTR
-         LDA   COLS
-         LSR
-         ADDAW MPTR
-         LDA   COLS
-         LSR
-         ADDAW ZPTR
-         PLY
-         DEY
-         BMI   :FIN
+:NEXTY   ADVMROW
+         INC   IDY
+         LDA   IDY
+         CMP   YEND
+         BEQ   :FIN
          JMP   :YLOOP
 :FIN     LDA   #BUFFER    ; RESET SPTR
          STA   SPTR
@@ -962,7 +1042,7 @@ PMOVE    JSR   GET
          JSR   INIMPTR
          JSR   DMOVE
 :PAINT   JSR   PAINT
-         RESTXY
+         RESETXY
          LDA   #$00
          STA   FAC1
          RTS
@@ -1045,3 +1125,93 @@ FRAME    LDX   #$06
          INC16 SPTR
          JSR   DRAWBOX
          RTS
+
+* COUNT DENIZENS UP TO POSITION
+* IN: X0,Y0,ROWS,COLS,MAP0,SROW1,SROW2
+* [SROW1,SROW2) = DENIZENS OF INTEREST
+* RETURN: YEND HAS THE COUNT
+
+CNTDEN   COPYW MAP0;MPTR
+         COPYW MAP0;ZPTR
+         ADDWW DOFF;ZPTR
+         LDA   #$00
+         STA   DX
+         STA   DY
+         STA   YEND       ; COUNTER
+
+         LDA   #$00
+         STA   IDY
+:YLOOP   LDA   #$00
+         STA   IDX
+:XLOOP   LDA   IDX
+         CMP   X0
+         BNE   :READ
+         LDA   IDY
+         CMP   Y0
+         BEQ   :STOP
+:READ    JSR   GETTILE
+         LDA   FAC2
+         CMP   SROW1
+         BPL   :MAYBE
+         JMP   :CONT
+:MAYBE   CMP   SROW2
+         BPL   :CONT
+         INC   YEND
+:CONT    INC   IDX
+         LDA   IDX
+         CMP   COLS
+         BNE   :XLOOP
+         ADVMROW
+         INC   IDY
+         LDA   IDY
+         CMP   ROWS
+         BNE   :YLOOP
+:STOP    RTS
+
+
+* FIND TREASURE TROVE ADDRESS
+* IN: X0,Y0,ROWS,COLS,MAP0
+* RETURN: ZPTR HAS ADDRESS, YEND HAS INDEX
+
+TROVE    LDA   #$0D
+         STA   SROW1
+         LDA   #$0E
+         STA   SROW2
+         JSR   CNTDEN
+         COPYW MAP0;ZPTR
+         LDA   #$40
+         STA   PROD
+         LDA   #$06
+         STA   PROD+1
+         ADDWW PROD;ZPTR  ; ADD 1600
+         MUL   YEND;#$50
+         ADDWW PROD;ZPTR  ; ADD 80*INDEX
+         RTS
+
+* FIND AND DISPLAY MONOLOGUE
+* IN: X0,Y0,ROWS,COLS,MAP0
+* RETURN: YEND HAS FIRST CHAR
+
+MONO     LDA   #$09
+         STA   SROW1
+         LDA   #$0E
+         STA   SROW2
+         JSR   CNTDEN
+         COPYW MAP0;ZPTR
+         LDA   #$72
+         STA   PROD
+         LDA   #$06
+         STA   PROD+1
+         ADDWW PROD;ZPTR  ; ADD 1650
+         MUL   YEND;#$78
+         ADDWW PROD;ZPTR  ; ADD 120*INDEX
+         LDY   #$00
+         LDA   (ZPTR),Y
+         STA   YEND       ; RETURN FIRST CHARACTER
+:CLOOP   LDA   (ZPTR),Y
+         BEQ   :FIN
+         ORA   #$80
+         JSR   COUT
+         INY
+         JMP   :CLOOP
+:FIN     RTS
