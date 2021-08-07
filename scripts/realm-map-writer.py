@@ -1,8 +1,6 @@
 '''This performs the inverse operation compared with realm-map-reader.py.
 In particular this reads the data from the JSON formatted maps, and
-saves it back into binaries, which can in turn be tansferred to DOS 3.3
-disk images, using, e.g., CiderPress.  This last is facilitated by
-the deploy-binaries.py script.'''
+saves it back into binaries for the disk images.'''
 
 import json
 import pathlib
@@ -76,10 +74,10 @@ def save_dungeons():
         name = dungeon + '\u0000' * (30 - len(dungeon))
         bytes = bytearray(2030)
         bytes[:1600] = pack_map(maps[dungeon])
-        for i in range(5):
+        for i in range(8):
             trove = text['dungeons'][dungeon]['trove'][i]
-            trove = trove + '\u0000' * (80 - len(trove))
-            bytes[1600+80*i:1600+80*(i+1)] = trove.encode('ascii')
+            trove = trove + '\u0000' * (50 - len(trove))
+            bytes[1600+50*i:1600+50*(i+1)] = trove.encode('ascii')
         bytes[2000:2030] = name.encode('ascii')
         with open(dungeonfile(coords),'w+b') as f:
             f.write(bytes[:2030])

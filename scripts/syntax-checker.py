@@ -5,7 +5,7 @@ This script does some basic checks.'''
 import glob
 import re
 
-files = sorted(glob.glob("../source/*.bas") + glob.glob("../prodos/*.bas"))
+files = sorted(glob.glob("../basic-dos33/*.bas") + glob.glob("../basic-prodos/*.bas") + glob.glob("../basic-common/*.bas"))
 
 for path in files:
 

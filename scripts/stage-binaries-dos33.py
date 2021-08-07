@@ -4,27 +4,24 @@ then be transferred en masse using CiderPress.
 The TXT extensions have to be removed by hand.
 This worklow is now supplanted by Virtual ][ scripts.'''
 
+# Rewritten for v1.4 but not tested
+
 import json
 import pathlib
 import shutil
 import os
 import warnings
 
-machine_code = [("MRC3",(0,1,2)),
-  ("OUTSIDE.INTRP",(0,1)),
-  ("S2",(0,3)),
-  ("SDP.INTRP",(0,1,2)),
-  ("TOWN.INTRP2",(0,1)),
-  ("DNGN.INTRP",(2,))
+machine_code = [("MAP.INTRP",(0,)),
+  ("SOUND",(0,3)),
+  ("SDP.INTRP",(0,))
   ]
 
 sprites = [("OUTSPS",(0,1)),
   ("TWNSPS",(0,1)),
   ("DNGNSPS",(2,))]
 
-frames = [("FRAMEO",(0,1)),
-  ("FRAMED",(2,)),
-  ("FRAMEM",(2,))]
+frames = [("FRAMEM",(2,))]
 
 text = [("DD",(0,3)),
   ("PLIST",(0,3)),
@@ -84,7 +81,7 @@ shutil.copy(src/'TITLE.PIC#062000',dest/'realm-disk3')
 # Copy stuff that may go to multiple places
 
 for f in machine_code:
-    deploy('machine-code',f,'b')
+    deploy('assembly',f,'b')
 
 for f in sprites:
     deploy('sprites',f,'b')
@@ -93,4 +90,4 @@ for f in frames:
     deploy('artwork-squeezed',f,'b')
 
 for f in text:
-    deploy('source',f)
+    deploy('text-data',f)

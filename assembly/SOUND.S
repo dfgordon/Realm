@@ -1,13 +1,20 @@
 * REALM SOUND GENERATOR
-* SIMPLE TONES AND CHIRPS
+* SIMPLE TONES, CHIRPS, SIRENS
 
          ORG   $300
 
-* ZERO PAGE USAGE ********************
+* ZERO PAGE PARAMETERS ***************
+* (HITONE-LOTONE)/RATE MUST BE INTEGRAL
 
-PERIOD1  EQU   $06
-PERIOD2  EQU   $07
-CYCLES   EQU   $08
+LOTONE   EQU   $06
+HITONE   EQU   $07
+CYCLES   EQU   $08        ; CYCLES PER TONE
+REPS     EQU   $09        ; CHIRP OR SIREN REPS
+RATE     EQU   $1E        ; RATE OF CHIRP
+
+* ZERO PAGE VARIABLES ****************
+
+PERIOD   EQU   $CE
 
 * ROM / IO ***************************
 
@@ -30,7 +37,7 @@ RPRSTK   PLA
          RTS
 
 TONE     LDY   CYCLES
-:CLOOP   LDX   PERIOD1
+:CLOOP   LDX   PERIOD
 :PLOOP   DEX
          BNE   :PLOOP
          STA   SPKR
@@ -39,37 +46,89 @@ TONE     LDY   CYCLES
          RTS
 
 FATTONE  LDY   CYCLES
-:CLOOP   LDA   PERIOD1
+:CLOOP   LDA   PERIOD
          JSR   WAIT
          STA   SPKR
          DEY
          BNE   :CLOOP
          RTS
 
-UPCHIRP  JSR   TONE
-         DEC   PERIOD1
-         LDA   PERIOD1
-         CMP   PERIOD2
+UPCHIRP  LDA   LOTONE
+         STA   PERIOD
+:LOOP    JSR   TONE
+         SEC
+         LDA   PERIOD
+         SBC   RATE
+         STA   PERIOD
+         CMP   HITONE
+         BNE   :LOOP
+         DEC   REPS
          BNE   UPCHIRP
          RTS
 
-DNCHIRP  JSR   TONE
-         INC   PERIOD1
-         LDA   PERIOD1
-         CMP   PERIOD2
+DNCHIRP  LDA   HITONE
+         STA   PERIOD
+:LOOP    JSR   TONE
+         CLC
+         LDA   PERIOD
+         ADC   RATE
+         STA   PERIOD
+         CMP   LOTONE
+         BNE   :LOOP
+         DEC   REPS
          BNE   DNCHIRP
          RTS
 
-UPFAT    JSR   FATTONE
-         DEC   PERIOD1
-         LDA   PERIOD1
-         CMP   PERIOD2
+UPFAT    LDA   LOTONE
+         STA   PERIOD
+:LOOP    JSR   FATTONE
+         SEC
+         LDA   PERIOD
+         SBC   RATE
+         STA   PERIOD
+         CMP   HITONE
+         BNE   :LOOP
+         DEC   REPS
          BNE   UPFAT
          RTS
 
-DNFAT    JSR   FATTONE
-         INC   PERIOD1
-         LDA   PERIOD1
-         CMP   PERIOD2
+DNFAT    LDA   HITONE
+         STA   PERIOD
+:LOOP    JSR   FATTONE
+         CLC
+         LDA   PERIOD
+         ADC   RATE
+         STA   PERIOD
+         CMP   LOTONE
+         BNE   :LOOP
+         DEC   REPS
          BNE   DNFAT
+         RTS
+
+SIREN    LDA   REPS
+         PHA
+         LDA   #01
+         STA   REPS
+         JSR   UPCHIRP
+         LDA   #01
+         STA   REPS
+         JSR   DNCHIRP
+         PLA
+         STA   REPS
+         DEC   REPS
+         BNE   SIREN
+         RTS
+
+FATSIREN LDA   REPS
+         PHA
+         LDA   #01
+         STA   REPS
+         JSR   UPFAT
+         LDA   #01
+         STA   REPS
+         JSR   DNFAT
+         PLA
+         STA   REPS
+         DEC   REPS
+         BNE   FATSIREN
          RTS

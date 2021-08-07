@@ -1,2 +1,4 @@
 #!/bin/zsh
-diff source/$1 prodos/$1
+# Use this to make sure dos33 and prodos BASIC
+# differ only in the expected ways.
+diff basic-dos33/$1 basic-prodos/$1

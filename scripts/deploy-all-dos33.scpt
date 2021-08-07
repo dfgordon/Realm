@@ -1,12 +1,14 @@
 set pause to 1
 set realm_path to "/Users/dan/Documents/appleii/Realm/"
-set src_folder to realm_path & "source/"
+set bas_dos_folder to realm_path & "basic-dos33/"
+set bas_com_folder to realm_path & "basic-common/"
+set text_folder to realm_path & "text-data/"
 set script_folder to realm_path & "scripts/"
 set art_folder to realm_path & "artwork-squeezed/"
 set map_folder to realm_path & "arrinea-maps/"
 set xmap_folder to realm_path & "exo-maps/"
 set sprite_folder to realm_path & "sprites/"
-set mc_folder to realm_path & "machine-code/"
+set mc_folder to realm_path & "assembly/"
 
 on waitForTyping()
 	tell application "Virtual ]["
@@ -102,23 +104,22 @@ repeat with art in artlist
 end repeat
 
 set s1 to {{"ALCHEMIST", 2048, 0, 1}, {"ARCHWIZ", 2816, 0}, {"BARON", 2048, 1}}
-set s2 to {{"CHAIN", 4096, 0,1,2}, {"COMBAT", 16384, 0,1,2}, {"DUNGEON", 16384, 2}}
-set s3 to {{"FOOD", 2816, 0,1}, {"HIGH PRIEST!", 4096, 2}, {"LIBRARY", 2048, 0,1}}
-set s4 to {{"MORDOCK!", 2048, 2}, {"OUTSIDE", 16384, 0,1}, {"PUB", 2816, 0,1}, {"SAGE", 2816, 0}}
-set s5 to {{"SAVE GAME", 2048, 0}, {"SHIPYARD", 2816, 0,1}}
-set s6 to {{"TEMPLE", 2048, 0,1}, {"TOWN", 16384, 0,1}, {"WEAPARM", 2048, 0,1}}
+set s2 to {{"-CHAIN", 4096, 0,1,2}, {"COMBAT", 16384, 0,1,2}, {"-DUNGEON", 16384, 2}}
+set s3 to {{"FOOD", 2816, 0,1}, {"HIGH.PRIEST", 4096, 2}, {"LIBRARY", 2048, 0,1}}
+set s4 to {{"-FINAL", 2048, 2}, {"-OUTSIDE", 16384, 0,1}, {"PUB", 2816, 0,1}, {"SAGE", 2816, 0}}
+set s5 to {{"-SAVE.GAME", 2048, 0}, {"SHIPYARD", 2816, 0,1}}
+set s6 to {{"TEMPLE", 2048, 0,1}, {"-TOWN", 16384, 0,1}, {"WEAPARM", 2048, 0,1}}
 
-set s7 to {{"AUTOSTART", 9, 0}, {"GUTEN TAG", 9, 0, 3}, {"LAUNCH", 9, 3}}
-set s8 to {{"DISK0", 9, 0}, {"DISK1", 9, 1}, {"DISK2", 9, 2}, {"DISK3", 9, 3}}
+set s7 to {{"-AUTOSTART", 9, 0}, {"-GUTEN TAG", 9, 0, 3}, {"-LAUNCH", 9, 3}}
+set s8 to {{"-DISK0", 9, 0}, {"-DISK1", 9, 1}, {"-DISK2", 9, 2}, {"-DISK3", 9, 3}}
 
 set slist to s1 & s2 & s3 & s4 & s5 & s6 & s7 & s8
 
 set disk_name to {"realm-dos33-master.DO", "realm-dos33-dungeon.DO", "realm-dos33-monster.DO", "realm-dos33-setup.DO"}
 
-set machine_code to {{mc_folder,"S2#060300",0,3},{mc_folder,"MRC3#061200",0,1,2},{mc_folder,"SDP.INTRP#064b00",0,1,2}}
-set machine_code to machine_code & {{mc_folder,"OUTSIDE.INTRP#0618f0",0,1},{mc_folder,"TOWN.INTRP2#06178e",0,1},{mc_folder,"DNGN.INTRP#061868",2}}
+set machine_code to {{mc_folder,"SOUND#060300",0,3},{mc_folder,"SDP.INTRP#0615ac",0,1},{mc_folder,"MAP.INTRP#06163e",0,1}}
 set sprites to {{sprite_folder,"OUTSPS#060800",0,1},{sprite_folder,"TWNSPS#060800",0,1},{sprite_folder,"DNGNSPS#060800",2}}
-set frames to {{art_folder,"FRAMEO#064c00",0,1},{art_folder,"FRAMED#064c00",2},{art_folder,"FRAMEM#064c00",2},{realm_path,"TITLE.PIC#062000",3}}
+set frames to {{art_folder,"FRAMEM#064c00",2},{realm_path,"TITLE.PIC#062000",3}}
 set blist to machine_code & sprites & frames
 
 repeat with ndisk from 0 to 3
@@ -178,7 +179,7 @@ repeat with ndisk from 0 to 3
 			enterBinary(mac_path,a2_path,35968)
 		end repeat
 
-		set mac_path to src_folder & "MONSTERS.TXT"
+		set mac_path to text_folder & "MONSTERS.TXT"
 		set t to text of (read POSIX file mac_path)
 		tell application "Virtual ]["
 			tell front machine
@@ -242,7 +243,12 @@ repeat with ndisk from 0 to 3
 			set addr0 to item 2 of tuple
 			set addr to addr0 + 1
 			set page to (addr / 256) as integer
-			set str to src_folder & src & ".bas"
+			if character 1 of src = "-" then
+				set src to character 2 through end of src as string
+				set str to bas_dos_folder & src & ".bas"
+			else
+				set str to bas_com_folder & src & ".bas"
+			end if
 
 			tell application "Virtual ]["
 				tell front machine
@@ -267,8 +273,10 @@ repeat with ndisk from 0 to 3
 						set hb to word 2 of line 22 of the screen text
 						set len to hb * 256 + lb - addr + 1
 						type line "BSAVE " & src & ",A" & addr & ",L" & len & ",D2"
-						if addr0 = 2816 and len > 1279 or addr0 = 2048 and len > 2047 and not src = "MORDOCK!" or addr0 = 16384 and len > 11519 or addr0 = 4096 and len > 1933 then
-							display dialog "WARNING: program " & src & " is too long"
+						if addr0 = 2816 and len > 1279 or addr0 = 2048 and len > 2047 or addr0 = 16384 and len > 11519 or addr0 = 4096 and len > 1451 then
+							if src is not "FINAL"
+								display dialog "WARNING: program " & src & " is too long"
+							end if
 						end if
 					end if
 					delay pause

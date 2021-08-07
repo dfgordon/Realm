@@ -1,6 +1,6 @@
 * REALM MAP INTERPRETER
 
-         ORG   $1550      ; ALLOWS BUFFER AT $1F00
+         ORG   $163E      ; ALLOWS BUFFER AT $1F00
 
 * ZERO PAGE USAGE
 
@@ -18,7 +18,7 @@ TEMP     EQU   $EF
 MPTR     EQU   $FA        ; INPLACE SUBMAP $FA,$FB
 SROW1    EQU   $FC        ; ROW IN SPRITE
 SROW2    EQU   $FD        ; ROW IN SPRITE
-ZPTR     EQU   $FE        ; GENERAL USE POINTER
+ZPTR     EQU   $FE        ; DENIZEN SUBMAP, GENERAL USE
 
 * VARIABLES
 
@@ -64,9 +64,10 @@ FLYING   HEX   8001,8001,8001,0000
 * ADDR = FRBOUT + MAPTYP*24 + TRAVEL/2
 * FIRST BYTE OF EACH ROW IS ARRAY SIZE
 * NEGATIVE FIRST BYTE FLIPS TO ALLOWED
-FRBOUT   HEX   06,02,04,05,06,08,09,00
+* NB ORDER CAN MATTER TO BASIC PROGS
+FRBOUT   HEX   06,02,04,06,08,09,05,00
          HEX   FD,04,07,0E,00,00,00,00
-         HEX   01,05,00,00,00,00,00,00
+         HEX   02,05,02,00,00,00,00,00
 FRBTWN   HEX   04,04,05,06,0A,00,00,00
          HEX   FF,04,00,00,00,00,00,00
          HEX   00,00,00,00,00,00,00,00
@@ -77,15 +78,17 @@ FRBGRD   HEX   06,04,05,06,0A,0B,0C,00
 
 * MOBILE DENIZEN CODES
 * ACCESS AS MOBILE,X OR MOBILE+3,X WHERE X = MAPTYP
-MOBILE   HEX   00,11,0F,00,19,0F
+MOBILE   HEX   FF,11,0F,FF,19,0F
 * ACESS AS DERASE,X WHERE X = MAPTYP
 DERASE   HEX   00,0F,07
 
+* DENIZENS FOR AN ORDERED COUNT
+* FIRST BYTE IS ARRAY SIZE
+TWNCOUNT HEX   06,09,0A,0B,0C,0D,0E
+DNGCOUNT HEX   02,03,0D
+
 * ROM ROUTINES
 
-SETCOLOR EQU   $F6F0      ; ARG=X
-BEGLINE  EQU   $F411      ; X,Y=HOR A=VER
-ENDLINE  EQU   $F53A      ; A,X=HOR Y=VER
 COUT     EQU   $FDED
 
 
@@ -1050,85 +1053,9 @@ PMOVE    JSR   GET
          STA   FAC1
          RTS
 
-* DRAW A BOX FROM (ZPTR,YPIX) TO (SPTR,IDY)
-
-DRAWBOX  LDX   ZPTR
-         LDY   ZPTR+1
-         LDA   YPIX
-         JSR   BEGLINE
-
-         LDA   SPTR
-         LDX   SPTR+1
-         LDY   YPIX
-         JSR   ENDLINE
-
-         LDA   SPTR
-         LDX   SPTR+1
-         LDY   IDY
-         JSR   ENDLINE
-
-         LDA   ZPTR
-         LDX   ZPTR+1
-         LDY   IDY
-         JSR   ENDLINE
-
-         LDA   ZPTR
-         LDX   ZPTR+1
-         LDY   YPIX
-         JSR   ENDLINE
-
-         RTS
-
-FRAME    LDX   #$06
-         JSR   SETCOLOR
-         LDA   OFFSET
-         LONIB            ; TILE ROWS
-         MULA  #$0C
-         LDA   PROD       ; EXPECT 8 BITS
-         CMP   #$03
-         BPL   :CONT
-         RTS              ; NO ROOM FOR FRAME
-:CONT    STA   YPIX
-         DEC   YPIX
-         DEC   YPIX       ; TOP
-         LDA   OFFSET
-         HINIB            ; TWICE TILE COLS
-         MULA  #$07
-         LDA   #$0A
-         ADDAW PROD
-         COPYW PROD;ZPTR  ; LEFT
-
-         LDA   RNG
-         ASL
-         STA   SPAN
-         INC   SPAN
-         LDA   #$0E
-         MULA  SPAN
-         LDA   #$06
-         ADDAW PROD
-         ADDWW ZPTR;PROD
-         COPYW PROD;SPTR  ; RIGHT
-         LDA   #$0C
-         MULA  SPAN
-         CLC
-         LDA   YPIX
-         ADC   PROD
-         ADC   #$03
-         STA   IDY       ; BOTTOM
-
-         JSR   DRAWBOX
-         DEC   YPIX
-         INC   IDY
-         DEC16 ZPTR
-         DEC16 ZPTR
-         INC16 SPTR
-         INC16 SPTR
-         JSR   DRAWBOX
-         RTS
-
 * COUNT DENIZENS UP TO POSITION
-* IN: X0,Y0,ROWS,COLS,MAP0,SROW1,SROW2
-* [SROW1,SROW2) = DENIZENS OF INTEREST
+* IN: X0,Y0,ROWS,COLS,MAP0,SCRPTR
+* SCRPTR = PTR TO ARRAY OF COUNTABLE CODES
 * RETURN: YEND HAS THE COUNT
 
 CNTDEN   COPYW MAP0;MPTR
@@ -1150,13 +1077,16 @@ CNTDEN   COPYW MAP0;MPTR
          CMP   Y0
          BEQ   :STOP
 :READ    JSR   GETTILE
-         LDA   FAC2
-         CMP   SROW1
-         BPL   :MAYBE
-         JMP   :CONT
-:MAYBE   CMP   SROW2
-         BPL   :CONT
-         INC   YEND
+         LDY   #$00
+         LDA   (SCRPTR),Y
+         TAY
+:CLOOP   BEQ   :CONT
+         LDA   (SCRPTR),Y
+         CMP   FAC2
+         BEQ   :COUNT
+         DEY
+         JMP   :CLOOP
+:COUNT   INC   YEND
 :CONT    INC   IDX
          LDA   IDX
          CMP   COLS
@@ -1173,10 +1103,10 @@ CNTDEN   COPYW MAP0;MPTR
 * IN: X0,Y0,ROWS,COLS,MAP0
 * RETURN: ZPTR HAS ADDRESS, YEND HAS INDEX
 
-TROVE    LDA   #$0D
-         STA   SROW1
-         LDA   #$0E
-         STA   SROW2
+TROVE    LDA   #DNGCOUNT
+         STA   SCRPTR
+         LDA   #>DNGCOUNT
+         STA   SCRPTR+1
          JSR   CNTDEN
          COPYW MAP0;ZPTR
          LDA   #$40
@@ -1184,18 +1114,18 @@ TROVE    LDA   #$0D
          LDA   #$06
          STA   PROD+1
          ADDWW PROD;ZPTR  ; ADD 1600
-         MUL   YEND;#$50
-         ADDWW PROD;ZPTR  ; ADD 80*INDEX
+         MUL   YEND;#$32
+         ADDWW PROD;ZPTR  ; ADD 50*INDEX
          RTS
 
 * FIND AND DISPLAY MONOLOGUE
 * IN: X0,Y0,ROWS,COLS,MAP0
 * RETURN: YEND HAS FIRST CHAR
 
-MONO     LDA   #$09
-         STA   SROW1
-         LDA   #$0E
-         STA   SROW2
+MONO     LDA   #TWNCOUNT
+         STA   SCRPTR
+         LDA   #>TWNCOUNT
+         STA   SCRPTR+1
          JSR   CNTDEN
          COPYW MAP0;ZPTR
          LDA   #$72

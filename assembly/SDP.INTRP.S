@@ -1,7 +1,7 @@
 * SDP INTEPRETER
 * THIS PROGRAM IS RELOCATABLE
 
-         ORG   $14BE      ; ALLOWS MAP.INTRP ORG $1550
+         ORG   $15AC      ; JUST BELOW MAP.INTRP
 
 * ZERO PAGE USAGE ********************
 

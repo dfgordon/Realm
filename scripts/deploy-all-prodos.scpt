@@ -1,12 +1,14 @@
 set pause to 1
 set realm_path to "/Users/dan/Documents/appleii/Realm/"
-set src_folder to realm_path & "prodos/"
+set bas_pro_folder to realm_path & "basic-prodos/"
+set bas_com_folder to realm_path & "basic-common/"
+set text_folder to realm_path & "text-data/"
 set script_folder to realm_path & "scripts/"
 set art_folder to realm_path & "artwork-squeezed/"
 set map_folder to realm_path & "arrinea-maps/"
 set xmap_folder to realm_path & "exo-maps/"
 set sprite_folder to realm_path & "sprites/"
-set mc_folder to realm_path & "machine-code/"
+set mc_folder to realm_path & "assembly/"
 
 on waitForTyping()
 	tell application "Virtual ]["
@@ -103,7 +105,7 @@ set choices to {"clean first", "binaries", "monsters", "maps", "xmaps", "BASIC",
 set dres to choose from list choices with title "Tasks" with prompt "Select" with multiple selections allowed
 
 tell application "Finder"
-	set mclist to {"DNGN.INTRP#061868","MRC3#061200","OUTSIDE.INTRP#0618f0","S2#060300","SDP.INTRP#064b00","TOWN.INTRP2#06178e"}
+	set mclist to {"MAP.INTRP#06163e","SOUND#060300","SDP.INTRP#0615ac"}
 	set spritelist to name of every file of entire contents of ((POSIX file sprite_folder) as alias)
 	set monslist to name of every file of entire contents of ((POSIX file art_folder) as alias)
 	set maplist to name of every file of entire contents of ((POSIX file map_folder) as alias)
@@ -113,12 +115,12 @@ end tell
 set binlist to mclist & spritelist
 
 set s1 to {{"ALCHEMIST", 2048}, {"ARCHWIZ", 2816}, {"BARON", 2048}}
-set s2 to {{"CHAIN", 4096}, {"COMBAT", 16384}, {"DUNGEON", 16384}}
+set s2 to {{"-CHAIN", 4096}, {"COMBAT", 16384}, {"-DUNGEON", 16384}}
 set s3 to {{"FOOD", 2816}, {"HIGH.PRIEST", 4096}, {"LIBRARY", 2048}}
-set s4 to {{"MORDOCK", 2048}, {"OUTSIDE", 16384}, {"PUB", 2816}, {"SAGE", 2816}}
-set s5 to {{"SAVE.GAME", 2048}, {"SHIPYARD", 2816}}
-set s6 to {{"TEMPLE", 2048}, {"TOWN", 16384}, {"WEAPARM", 2048}}
-set s7 to {{"LAUNCH", 9}}
+set s4 to {{"-FINAL", 2048}, {"-OUTSIDE", 16384}, {"PUB", 2816}, {"SAGE", 2816}}
+set s5 to {{"-SAVE.GAME", 2048}, {"SHIPYARD", 2816}}
+set s6 to {{"TEMPLE", 2048}, {"-TOWN", 16384}, {"WEAPARM", 2048}}
+set s7 to {{"-LAUNCH", 9}}
 set slist to s1 & s2 & s3 & s4 & s5 & s6 & s7
 
 if dres contains "clean first" then
@@ -162,7 +164,7 @@ if dres contains "monsters" then
 		enterBinary(mac_path,a2_path,27904)
 	end repeat
 
-	set mac_path to realm_path & "source/MONSTERS.TXT"
+	set mac_path to text_folder & "MONSTERS.TXT"
 	set t to text of (read POSIX file mac_path)
 	tell application "Virtual ]["
 		tell front machine
@@ -215,7 +217,7 @@ end if
 
 if dres contains "BASIC" then
 
-	set str to src_folder & "STARTUP.bas"
+	set str to bas_pro_folder & "STARTUP.bas"
 	enterProgram(str)
 	tell application "Virtual ]["
 		tell front machine
@@ -231,7 +233,12 @@ if dres contains "BASIC" then
 		set addr0 to item 2 of tuple
 		set addr to addr0 + 1
 		set page to (addr / 256) as integer
-		set str to src_folder & src & ".bas"
+		if character 1 of src = "-" then
+			set src to character 2 through end of src as string
+			set str to bas_pro_folder & src & ".bas"
+		else
+			set str to bas_com_folder & src & ".bas"
+		end if
 
 		tell application "Virtual ]["
 			tell front machine
@@ -256,8 +263,10 @@ if dres contains "BASIC" then
 					set hb to word 2 of line 22 of the screen text
 					set len to hb * 256 + lb - addr + 1
 					type line "BSAVE REALM/PROG/" & src & ",A" & addr & ",L" & len & ",S7,D1"
-					if addr0 = 2816 and len > 1279 or addr0 = 2048 and len > 2047 and not src = "MORDOCK" or addr0 = 16384 and len > 11519 or addr0 = 4096 and len > 1933 then
-						display dialog "WARNING: program " & src & " is too long"
+					if addr0 = 2816 and len > 1279 or addr0 = 2048 and len > 2047 or addr0 = 16384 and len > 11519 or addr0 = 4096 and len > 1451 then
+						if src is not "FINAL"
+							display dialog "WARNING: program " & src & " is too long"
+						end if
 					end if
 				end if
 				delay pause
