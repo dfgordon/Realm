@@ -47,7 +47,7 @@ def get_nibbles(bytes,dims):
     return nibbles
 
 def town_data(town,bytes):
-    coords = town.split('.')[1].split('#')[0].split(' ')
+    coords = (town.split('.')[1] , town.split('.')[2].split('#')[0])
     name = bytes[800:850].decode('ascii','ignore').split('\0')[0]
     mono = []
     for i in range(7):
@@ -57,7 +57,7 @@ def town_data(town,bytes):
     return name,coords,mono,map,dmap
 
 def dungeon_data(dng,bytes):
-    coords = dng.split('.')[1].split('#')[0].split(' ')
+    coords = (dng.split('.')[1] , dng.split('.')[2].split('#')[0])
     name = bytes[2000:2030].decode('ascii','ignore').split('\0')[0]
     trove = []
     for i in range(8):

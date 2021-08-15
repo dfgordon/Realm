@@ -10,15 +10,15 @@ realm_name = ['ABYSS','ARRINEA','FONKRAKIS','WORNOTH']
 realm_dir = ['exo-maps','arrinea-maps','exo-maps','exo-maps']
 
 def townfile(coords):
-    t = 'TOWNPIC.' + coords[0] + ' ' + coords[1] + '#068000'
+    t = 'TOWNPIC.' + coords[0] + '.' + coords[1] + '#068000'
     return str(dest / 'arrinea-maps' / t)
 
 def xtownfile(coords):
-    t = 'TOWNPIC.' + coords[0] + ' ' + coords[1] + '#068000'
+    t = 'TOWNPIC.' + coords[0] + '.' + coords[1] + '#068000'
     return str(dest / 'exo-maps' / t)
 
 def dungeonfile(coords):
-    d = 'DNGPIC.' + coords[0] + ' ' + coords[1] + '#068000'
+    d = 'DNGPIC.' + coords[0] + '.' + coords[1] + '#068000'
     return str(dest / 'exo-maps'/ d)
 
 def realmfile(idx):

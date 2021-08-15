@@ -106,7 +106,7 @@ end repeat
 set s1 to {{"ALCHEMIST", 2048, 0, 1}, {"ARCHWIZ", 2816, 0}, {"BARON", 2048, 1}}
 set s2 to {{"-CHAIN", 4096, 0,1,2}, {"COMBAT", 16384, 0,1,2}, {"-DUNGEON", 16384, 2}}
 set s3 to {{"FOOD", 2816, 0,1}, {"HIGH.PRIEST", 4096, 2}, {"LIBRARY", 2048, 0,1}}
-set s4 to {{"-FINAL", 2048, 2}, {"-OUTSIDE", 16384, 0,1}, {"PUB", 2816, 0,1}, {"SAGE", 2816, 0}}
+set s4 to {{"-FINAL", 2048, 2}, {"-OUTSIDE", 16384, 0,1}, {"PUB", 2048, 0,1}, {"SAGE", 2816, 0}}
 set s5 to {{"-SAVE.GAME", 2048, 0}, {"SHIPYARD", 2816, 0,1}}
 set s6 to {{"TEMPLE", 2048, 0,1}, {"-TOWN", 16384, 0,1}, {"WEAPARM", 2048, 0,1}}
 
@@ -163,6 +163,9 @@ repeat with ndisk from 0 to 3
 					repeat with tuple in slist
 						if tuple contains ndisk then
 							set src to item 1 of tuple
+								if character 1 of src = "-" then
+									set src to character 2 through end of src as string
+								end if
 								type line "DELETE " & src & ",D2"
 						end if
 					end repeat

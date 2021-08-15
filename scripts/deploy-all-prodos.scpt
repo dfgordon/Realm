@@ -117,7 +117,7 @@ set binlist to mclist & spritelist
 set s1 to {{"ALCHEMIST", 2048}, {"ARCHWIZ", 2816}, {"BARON", 2048}}
 set s2 to {{"-CHAIN", 4096}, {"COMBAT", 16384}, {"-DUNGEON", 16384}}
 set s3 to {{"FOOD", 2816}, {"HIGH.PRIEST", 4096}, {"LIBRARY", 2048}}
-set s4 to {{"-FINAL", 2048}, {"-OUTSIDE", 16384}, {"PUB", 2816}, {"SAGE", 2816}}
+set s4 to {{"-FINAL", 2048}, {"-OUTSIDE", 16384}, {"PUB", 2048}, {"SAGE", 2816}}
 set s5 to {{"-SAVE.GAME", 2048}, {"SHIPYARD", 2816}}
 set s6 to {{"TEMPLE", 2048}, {"-TOWN", 16384}, {"WEAPARM", 2048}}
 set s7 to {{"-LAUNCH", 9}}
@@ -149,7 +149,11 @@ if dres contains "clean first" then
 			end if
 			if dres contains "BASIC" then
 				repeat with tuple in slist
-					type line "DELETE REALM/PROG/" & (item 1 of tuple) & ",S7,D1"
+					set src to item 1 of tuple
+					if character 1 of src = "-" then
+						set src to character 2 through end of src as string
+					end if
+					type line "DELETE REALM/PROG/" & src & ",S7,D1"
 				end repeat
 			end if
 		end tell
