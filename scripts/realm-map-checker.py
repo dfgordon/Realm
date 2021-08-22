@@ -64,10 +64,10 @@ def check_towns(x):
         map = maps[town]
         dmap = dmaps[town]
         for i in range(7):
-            mono = sub_dict[town]['mono'][i]
+            mono = sub_dict[town]['mono'][i][1:]
             if len(mono) > len(longest_mono):
                 longest_mono = mono
-            if len(mono)>119:
+            if len(mono)>118: # n.b. leading and terminating characters
                 print(' * run-on monologue: '+mono)
                 problems += 1
             test = mono + '\u0000'*80

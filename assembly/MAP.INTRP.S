@@ -1138,10 +1138,10 @@ MONO     LDA   #TWNCOUNT
          LDY   #$00
          LDA   (ZPTR),Y
          STA   YEND       ; RETURN FIRST CHARACTER
-:CLOOP   LDA   (ZPTR),Y
+:CLOOP   INY
+         LDA   (ZPTR),Y
          BEQ   :FIN
          ORA   #$80
          JSR   COUT
-         INY
          JMP   :CLOOP
 :FIN     RTS
