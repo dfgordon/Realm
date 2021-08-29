@@ -29,12 +29,13 @@ for path in files:
                 print('WARNING: first word not a number')
                 print(line)
 
+    nums = nums[1:]
     str_line_nums = list(map(str,nums))
 
     # We have to do the following by line so we can exclude branches to another program
     for line in lines:
-        match = re.search(r'POKE\s+103,',line)
-        if not match:
+        external_branch = re.search(r'POKE\s+103,',line)
+        if not external_branch:
             matches = re.findall(r'[\s:](GOTO|GOSUB|THEN)\s+([0-9]+)',line)
             for s in matches:
                 if s[1] not in str_line_nums:
@@ -87,7 +88,7 @@ chklines = get_line_table(files,150,160)
 check_consistency(chklines,'fast status')
 
 files = ["../basic-common/WEAPARM.bas","../basic-common/ALCHEMIST.bas"]
-chklines = get_line_table(files,4400,4700)
+chklines = get_line_table(files,21,41)
 check_consistency(chklines,'placement')
 
 files = ["../basic-common/COMBAT.bas","../basic-dos33/FINAL.bas","../basic-prodos/FINAL.bas"]
