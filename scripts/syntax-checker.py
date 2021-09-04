@@ -92,7 +92,7 @@ chklines = get_line_table(files,21,41)
 check_consistency(chklines,'placement')
 
 files = ["../basic-common/COMBAT.bas","../basic-dos33/FINAL.bas","../basic-prodos/FINAL.bas"]
-chklines = get_line_table(files,2800,3000)
+chklines = get_line_table(files,2800,2900)
 check_consistency(chklines,'combat inventory')
 chklines = get_line_table(files,3100,3200)
 check_consistency(chklines,'defenses')

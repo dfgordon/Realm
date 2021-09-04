@@ -330,3 +330,13 @@ if dres contains "init/clean for distribution" then
 		end tell
 	end tell
 end if
+
+delay pause
+
+tell application "Virtual ]["
+	tell front machine
+		eject device "S6D1"
+		eject device "S6D2"
+	end tell
+	close every machine saving no
+end tell

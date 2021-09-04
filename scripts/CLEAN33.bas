@@ -10,7 +10,7 @@
 100  PRINT "RESET CONFIGURATION"
 110  DL$(0) = "MASTER": DL$(1) = "DUNGEON": DL$(2) = "MONSTER": DL$(3) = "SETUP"
 120  FOR I = 0 TO 3: WS%(I) = 6: WD%(I) = 1: WV%(I) = 254: NEXT I
-130  ES = 100: EP = 100: WD%(2) = 2
+130  ES = 100: EP = 100: WD%(2) = 2: WD%(3) = 2
 140  GOSUB 5200
 150  END
 
