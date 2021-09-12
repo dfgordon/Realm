@@ -35,15 +35,15 @@ if ans=='y':
         print('delete '+f)
         os.remove(f)
 
+dialog_choices = ["binaries", "monsters", "maps", "xmaps", "BASIC", "init/clean for distribution"]
+
 if '33' in sys.argv:
     shutil.copy(disk_path / 'Realm-blanks' / 'realm-dos33-dungeon.DO' , disk_path)
     shutil.copy(disk_path / 'Realm-blanks' / 'realm-dos33-master.DO' , disk_path)
     shutil.copy(disk_path / 'Realm-blanks' / 'realm-dos33-monster.DO' , disk_path)
     shutil.copy(disk_path / 'Realm-blanks' / 'realm-dos33-setup.DO' , disk_path)
 
-    subprocess.run(["open",str(script_path / 'deploy-all-dos33.scpt')])
-    print('We opened an AppleScript, please run.  When it completes return here and press enter.')
-    input()
+    subprocess.run(["osascript",str(script_path / 'deploy-all-dos33.scpt')] + dialog_choices)
 
     print('Copying disk images to distribution folder...')
     shutil.copy(disk_path / 'realm-dos33-dungeon.DO' , distro_path / ('realm-dos33-dungeon-'+v+'.DO'))
@@ -54,9 +54,7 @@ if '33' in sys.argv:
 if 'pro' in sys.argv:
     shutil.copy(disk_path / 'Realm-blanks' / 'realm-prodos.po' , disk_path)
 
-    subprocess.run(["open",str(script_path / 'deploy-all-prodos.scpt')])
-    print('We opened an AppleScript, please run.  When it completes return here and press enter.')
-    input()
+    subprocess.run(["osascript",str(script_path / 'deploy-all-prodos.scpt')] + dialog_choices)
 
     print('Copying disk images to distribution folder...')
     shutil.copy(disk_path / 'realm-prodos.po' , distro_path / ('realm-prodos-'+v+'.po'))
