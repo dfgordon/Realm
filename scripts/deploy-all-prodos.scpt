@@ -125,7 +125,7 @@ on run argv
 	set s3 to {{"FOOD", 2816}, {"HIGH.PRIEST", 4096}, {"LIBRARY", 2048}}
 	set s4 to {{"-FINAL", 2048}, {"-OUTSIDE", 16384}, {"PUB", 2048}, {"SAGE", 2816}}
 	set s5 to {{"-SAVE.GAME", 2048}, {"SHIPYARD", 2816}}
-	set s6 to {{"TEMPLE", 2048}, {"-TOWN", 16384}, {"WEAPARM", 2048}}
+	set s6 to {{"TEMPLE", 2048}, {"TOWN", 16384}, {"WEAPARM", 2048}}
 	set s7 to {{"-LAUNCH", 9}}
 	set slist to s1 & s2 & s3 & s4 & s5 & s6 & s7
 

@@ -80,12 +80,22 @@ def check_consistency(chklines,cat_str):
 
 print('Consistency checks:')
 print('-------------------')
-files = ["../basic-dos33/DUNGEON.bas","../basic-dos33/OUTSIDE.bas","../basic-dos33/TOWN.bas"]
-files += ["../basic-prodos/DUNGEON.bas","../basic-prodos/OUTSIDE.bas","../basic-prodos/TOWN.bas"]
+files = ["../basic-dos33/DUNGEON.bas","../basic-dos33/OUTSIDE.bas","../basic-common/TOWN.bas"]
+files += ["../basic-prodos/DUNGEON.bas","../basic-prodos/OUTSIDE.bas"]
 chklines = get_line_table(files,2000,4500)
 check_consistency(chklines,'inventory handling')
+chklines = get_line_table(files,130,139)
+check_consistency(chklines,'movement')
 chklines = get_line_table(files,150,160)
 check_consistency(chklines,'fast status')
+chklines = get_line_table(files,190,200)
+check_consistency(chklines,'select character, oops handler')
+chklines = get_line_table(files,700,724)
+check_consistency(chklines,'casting')
+chklines = get_line_table(files,1000,1010)
+check_consistency(chklines,'using')
+chklines = get_line_table(files,750,790)
+check_consistency(chklines,'healing and raising')
 
 files = ["../basic-common/WEAPARM.bas","../basic-common/ALCHEMIST.bas"]
 chklines = get_line_table(files,21,41)

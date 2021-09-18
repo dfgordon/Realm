@@ -114,7 +114,7 @@ on run argv
 	set s3 to {{"FOOD", 2816, 0,1}, {"HIGH.PRIEST", 4096, 2}, {"LIBRARY", 2048, 0,1}}
 	set s4 to {{"-FINAL", 2048, 2}, {"-OUTSIDE", 16384, 0,1}, {"PUB", 2048, 0,1}, {"SAGE", 2816, 0}}
 	set s5 to {{"-SAVE.GAME", 2048, 0}, {"SHIPYARD", 2816, 0,1}}
-	set s6 to {{"TEMPLE", 2048, 0,1}, {"-TOWN", 16384, 0,1}, {"WEAPARM", 2048, 0,1}}
+	set s6 to {{"TEMPLE", 2048, 0,1}, {"TOWN", 16384, 0,1}, {"WEAPARM", 2048, 0,1}}
 
 	set s7 to {{"-AUTOSTART", 9, 0}, {"-GUTEN TAG", 9, 0, 3}, {"-LAUNCH", 9, 3}}
 	set s8 to {{"-DISK0", 9, 0}, {"-DISK1", 9, 1}, {"-DISK2", 9, 2}, {"-DISK3", 9, 3}}
