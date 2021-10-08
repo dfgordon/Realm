@@ -61,7 +61,9 @@ end dos33
 on run argv
 
 	set pause to 1
-	set realm_path to "/Users/dan/Documents/appleii/Realm/"
+	set home_folder to path to home folder
+	set home_path to POSIX path of home_folder
+	set realm_path to home_path & "Documents/appleii/Realm/"
 	set bas_dos_folder to realm_path & "basic-dos33/"
 	set bas_com_folder to realm_path & "basic-common/"
 	set text_folder to realm_path & "text-data/"
