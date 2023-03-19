@@ -6,8 +6,8 @@ if len(sys.argv)!=4:
     print('usage: python '+sys.argv[0]+' <img_type> <project_path> <distro_path>')
     exit(1)
 img_fmt = sys.argv[1]
-if img_fmt!='woz' and img_fmt!='po':
-    print('format must be woz or po')
+if img_fmt!='woz' and img_fmt!='do':
+    print('format must be woz or do')
     exit(1)
 home_path = pathlib.Path.home()
 realm_path = pathlib.Path(sys.argv[2])

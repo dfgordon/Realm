@@ -1,19 +1,38 @@
-* USE THE PRODOS MLI TO GET VOLUME INFO
-* AND TO COPY FILES
+* AMPERSAND COMMANDS TO GET VOLUMES AND COPY FILES
+* &("VOLS",VO$,CAP,N)
+*    VO$(16) RECEIVES THE NAMES
+*    CAP(16) RECEIVES THE AVAILABLE BLOCKS
+*    N RECEIVES NUMBER FOUND (N MUST EXIST)
+* &("COPY",P1$,P2$,P3$,P4$)
+*    P1$/P2$ IS THE SOURCE PATH
+*    P3$/P4$ IS THE DESTINATION PATH
+*    USE ABSOLUTE PREFIXES
+* USES STORAGE FROM $4500 to $5400
 
          ORG   $4000
-MLI_ADDR =     $BF00
-STRBUF   =     $5000      ; PREFIX STRINGS WITH LEN
-SRC_PRE  =     $5100
-SRC_PTH  =     $5140
-DST_PRE  =     $5180
-DST_PTH  =     $51C0
-IBUF     =     $5400
-OBUF     =     $5800
-WRKBUF   =     $5C00
+
+* MY ZERO PAGE
+
 STAT     =     $06        ; ERROR STATUS
 DBG      =     $08        ; DEBUG FLAG
+VCOUNT   =     $1E        ; VOLUMES ONLINE
+VPTR     =     $CE        ; VOLUME STRING ARRAY
+CPTR     =     $EB        ; CAPACITY FP ARRAY
+NPTR     =     $FA        ; COUNT VARIABLE
 ZPTR     =     $FE        ; GENERAL PTR
+
+* PRODOS MLI AND PARAMS
+
+MLI_ADDR =     $BF00
+VOLBUF   =     $4500      ; PREFIX STRINGS WITH LEN
+SRC_PRE  =     $4600
+SRC_PTH  =     $4640
+DST_PRE  =     $4680
+DST_PTH  =     $46C0
+PATHBUF  =     $4700
+IBUF     =     $4800
+OBUF     =     $4C00
+WRKBUF   =     $5000
 CREATE   =     $C0
 GETFINF  =     $C4
 ONLINE   =     $C5
@@ -25,14 +44,61 @@ CLOSE    =     $CC
 SETMRK   =     $CE
 GETMRK   =     $CF
 GETEOF   =     $D1
+
+* ROM POINTERS AND CONSTANTS
+
+ILLQTY   =     $35        ; ILLEGAL QUANTITY
+STRLNG   =     $B0        ; STRING TOO LONG
+DSCTMP   =     $9D        ; STRING DESC = LEN,LO,HI
+FAC      =     $9D        ; FP ACCUMULATOR
+VARPNT   =     $83
+LOWTR    =     $9B
+TXTPTR   =     $B8
+
+* ROM ROUTINES
+
 PRBYTE   =     $FDDA
 COUT     =     $FDED
+DATA     =     $D995
+CHRGET   =     $B1
+CHRGOT   =     $B7
+CHKCOM   =     $DEBE
+CHKOPN   =     $DEBB
+CHKCLS   =     $DEB8
+ISLETC   =     $E07D
+PTRGET   =     $DFE3
+ARYGET   =     $F7D9
+STRINI   =     $E3D5
+MOVSTR   =     $E5E2
+MOVMF    =     $EB2E
+MOVFM    =     $EAF9
+FLOAT2   =     $EBA0
+INT2FP   =     $E2F2
+SNERR    =     $DEC9
+DOERR    =     $D419
 
 MLI      MAC
          JSR   MLI_ADDR
          DFB   ]1
          DW    ]2
          STA   STAT       ; STORE ERR CODE
+         <<<
+
+MKPTR    MAC
+         LDA   #<]1
+         STA   ]2
+         LDA   #>]1
+         STA   ]2+1
+         <<<
+
+ADPTR    MAC
+         CLC
+         LDA   ]1
+         ADC   ]2
+         STA   ]2
+         LDA   #$00
+         ADC   ]2+1
+         STA   ]2+1
          <<<
 
 CP16     MAC
@@ -54,63 +120,273 @@ CP24     MAC
          <<<
 
 PATH     MAC
-         LDA   #<]1
-         STA   ZPTR
-         LDA   #>]1
-         STA   ZPTR+1
          LDY   #$00
-]LOOP    LDA   (ZPTR),Y
-         STA   STRBUF,Y
+]LOOP    LDA   ]1,Y
+         STA   PATHBUF,Y
          INY
          CPY   #$40
          BNE   ]LOOP
          <<<
 
-CHKEOF   LDA   DBG
-         BEQ   :SKP_DBG
+* MAIN AMPERSAND COMMAND DISPATCHER
+* KEEP THIS AS THE FIRST ADDRESSABLE ITEM
+DISPATCH LDA   #$00
+         STA   STAT
+         JSR   CHKOPN
+         CMP   #'"'
+         BEQ   :CONT
+         JMP   SNERR
+:CONT    JSR   DEBUGT
+         MKPTR AMPCPY;ZPTR
+         JSR   TRYCMD
+         BNE   :COPY
+         MKPTR AMPVOL;ZPTR
+         JSR   TRYCMD
+         BNE   :GETVOL
+         JMP   SNERR
+
+:COPY    MKPTR SRC_PRE;ZPTR
+         JSR   GETSTR
+         MKPTR SRC_PTH;ZPTR
+         JSR   GETSTR
+         MKPTR DST_PRE;ZPTR
+         JSR   GETSTR
+         MKPTR DST_PTH;ZPTR
+         JSR   GETSTR
+         JSR   CHKCLS
+         JSR   COPY
+         JMP   :FIN
+
+:GETVOL  JSR   CHKCOM
+         JSR   DEBUGT
+         JSR   ARYGET
+         JSR   CHKARY
+         LDA   STAT
+         BNE   :FIN
+         CP16  LOWTR;VPTR
+         JSR   CHKCOM
+         JSR   DEBUGT
+         JSR   ARYGET
+         JSR   CHKARY
+         LDA   STAT
+         BNE   :FIN
+         CP16  LOWTR;CPTR
+         JSR   CHKCOM
+         JSR   DEBUGT
+         JSR   PTRGET
+         CP16  VARPNT;NPTR
+         JSR   DEBUGT
+         JSR   CHKCLS
+         JSR   GETVOL
+
+:FIN     LDA   STAT
+         BEQ   :RET
+         LDX   STAT
+         JMP   DOERR
+:RET     JMP   DATA       ; NEXT APPLESOFT STATEMENT
+
+* PRINT Y DEBUG BYTES AT ZPTR IN REVERSE ORDER
+* Y MUST NOT EXCEED $7F
+DEBUGY   LDA   DBG
+         BEQ   :FIN
          LDA   #"<"
          JSR   COUT
-         LDA   MPOS+2
+         DEY
+:LOOP    LDA   (ZPTR),Y
          JSR   PRBYTE
-         LDA   MPOS+1
-         JSR   PRBYTE
-         LDA   MPOS
-         JSR   PRBYTE
+         DEY
+         BPL   :LOOP
          LDA   #">"
          JSR   COUT
          LDA   #$8D
          JSR   COUT
-:SKP_DBG LDA   MPOS
-         CMP   EOF
-         BNE   :NOT_EOF
-         LDA   MPOS+1
-         CMP   EOF+1
-         BNE   :NOT_EOF
-         LDA   MPOS+2
-         CMP   EOF+2
-         BNE   :NOT_EOF
+:FIN     RTS
+
+* PRINT CURRENT PARSING CHARACTER
+DEBUGT   PHA
+         LDA   DBG
+         BEQ   :FIN
+         TYA
+         PHA
+         LDY   #$00
+         LDA   (TXTPTR),Y
+         ORA   #$80
+         JSR   COUT
+         PLA
+         TAY
+:FIN     PLA
+         RTS
+
+* CHECK FOR COMMAND, PATTERN AT (ZPTR) MUST END IN QUOTE
+* IF NO MATCH TXTPTR IS REWOUND
+TRYCMD   LDA   TXTPTR
+         PHA
+         LDA   TXTPTR+1
+         PHA
+         LDY   #$01       ; FIRST QUOTE ALREADY GOT
+:LOOP    JSR   CHRGET
+         JSR   DEBUGT
+         CMP   (ZPTR),Y
+         BEQ   :MATCH
+         PLA
+         STA   TXTPTR+1
+         PLA
+         STA   TXTPTR
+         LDA   #$00
+         RTS
+:MATCH   CMP   #$22
+         BEQ   :FIN
+         INY
+         JMP   :LOOP
+:FIN     PLA
+         PLA
+         JSR   CHRGET     ; ADVANCE TO NEXT
          LDA   #$01
          RTS
-:NOT_EOF LDA   #$00
+
+* LOAD STRING PARAM INTO ZPTR
+GETSTR   JSR   CHKCOM
+         JSR   PTRGET     ; TODO: VERIFY IT IS A STRING
+         LDY   #$00
+         LDA   (VARPNT),Y
+         STA   DSCTMP
+         INY
+         LDA   (VARPNT),Y
+         STA   DSCTMP+1
+         INY
+         LDA   (VARPNT),Y
+         STA   DSCTMP+2
+         LDX   DSCTMP
+         LDY   #$00
+         TXA
+         STA   (ZPTR),Y   ; LEN PREFIX
+:LOOP    LDA   (DSCTMP+1),Y
+         INY
+         STA   (ZPTR),Y
+         CPY   #$3F
+         BNE   :OK
+         LDA   #STRLNG
+         STA   STAT
+         RTS
+:OK      DEX
+         BEQ   :FIN
+         JMP   :LOOP
+:FIN     RTS
+
+* LOAD STR AT ZPTR INTO ARRAY ELEMENT AT VPTR
+LDSTR    LDY   #$00
+         LDA   (ZPTR),Y
+         AND   #$0F
+         PHA              ; STRING LEN TO STACK
+         JSR   STRINI
+         LDY   #$00
+         LDA   DSCTMP
+         STA   (VPTR),Y
+         INY
+         LDA   DSCTMP+1
+         STA   (VPTR),Y
+         INY
+         LDA   DSCTMP+2
+         STA   (VPTR),Y
+         PLA
+         LDX   ZPTR
+         LDY   ZPTR+1
+         INX              ; EXPECT TO STAY ON PAGE
+         JSR   MOVSTR
          RTS
 
-* GET MOUNTED VOLUME LIST
-* RETURNED IN STRBUF, 16 BYTES PER ENTRY
-* FIRST BYTE OF ENTRY HAS LENGTH IN LOW NIBBLE
-GETVOLS  MLI   ONLINE;VPARMS
-         RTS
-
-* GET VOLUME CAPACITY
-* VOLUME NAME IS INPUT AT BUF WITH COUNT HEADER
-* BLOCKS AVAILABLE RETURNED IN STAT
-GETCAP   MLI   GETFINF;FPARMS
-         SEC
+* GET AVAILABLE BLOCKS OF VOLUME WITH NAME AT ZPTR
+* PUT RESULT IN CPTR
+LDFP     LDY   #$00
+         LDA   (ZPTR),Y
+         AND   #$0F
+         STA   PATHBUF    ; LENGTH
+         INC   PATHBUF    ; SLASH ADDS 1
+         LDA   #'/'
+         STA   PATHBUF+1
+:LOOP    INY
+         CPY   #$10
+         BEQ   :READY
+         LDA   (ZPTR),Y
+         STA   PATHBUF+1,Y
+         JMP   :LOOP
+:READY   MLI   GETFINF;FPARMS
+         CMP   #$00
+         BEQ   :OK
+         RTS              ; ERR
+:OK      SEC
          LDA   AUX
          SBC   USED
-         STA   STAT
+         PHA
          LDA   AUX+1
          SBC   USED+1
-         STA   STAT+1
+         STA   FAC+1
+         PLA
+         STA   FAC+2      ; BE-UNSIGNED IS IN FAC+1
+         LDX   #$90       ; EXPONENT
+         SEC              ; POSITIVE NUMBER FLAG
+         JSR   FLOAT2     ; CAPACITY IS IN FAC
+         LDX   CPTR
+         LDY   CPTR+1
+         JSR   MOVMF
+         RTS
+
+* CHECK ARRAY LEN>15 AND DIMS=1
+CHKARY   CP16  LOWTR;ZPTR
+         LDY   #$07
+         JSR   DEBUGY
+         LDY   #$04
+         LDA   (LOWTR),Y  ; DIMS
+         CMP   #$01
+         BEQ   :DIMOK
+         JMP   :ILLQTY
+:DIMOK   LDY   #$05       ; LEN IS BIG-ENDIAN
+                          ; WORDS ALSO REVERSE ORDER
+         LDA   (LOWTR),Y
+         BNE   :LENOK
+         INY
+         LDA   (LOWTR),Y
+         AND   #$F0
+         BNE   :LENOK
+:ILLQTY  LDA   #ILLQTY
+         STA   STAT
+:LENOK   RTS
+
+* GET VOLUME INFO
+* LOAD NAMES INTO STR ARRAY AT VPTR
+* LOAD BLOCKS INTO FP ARRAY AT CPTR
+* LOAD COUNT INTO FP VARIABLE AT NPTR
+* ERR IS RETURNED IN STAT
+GETVOL   MLI   ONLINE;VPARMS ; 16 BYTE ENTRIES IN STRBUF
+         LDA   STAT
+         BEQ   :OK
+         RTS              ; ERR
+:OK      MKPTR VOLBUF;ZPTR
+         ADPTR #$07;VPTR
+         ADPTR #$07;CPTR
+         LDA   #$00
+         STA   VCOUNT
+:LOOP    LDY   #$00
+         LDA   (ZPTR),Y   ; LO-NIB = LEN, HI-NIB = ERR
+         BEQ   :FIN    ; NO MORE
+         AND   #$0F
+         BEQ   :REP       ; SLOT/DRIVE EMPTY
+         JSR   LDSTR
+         JSR   LDFP
+         LDA   STAT
+         BEQ   :OK2
+         RTS              ;ERR
+:OK2     ADPTR #$03;VPTR
+         ADPTR #$05;CPTR
+         INC   VCOUNT
+:REP     ADPTR #$10;ZPTR  ; NEXT SLOT/DRIVE
+         JMP   :LOOP
+:FIN     LDY   VCOUNT     ; PUT VCOUNT IN LAST ARG
+         LDA   #$00
+         JSR   INT2FP
+         LDX   NPTR
+         LDY   NPTR+1
+         JSR   MOVMF
          RTS
 
 * COPY FILE INFO --> CREATE INFO
@@ -124,7 +400,25 @@ COPYINFO LDA   ACCESS
          CP24  CRTIME;CRCRTIME
          RTS
 
-* COPY FILE
+* IF MARKER IS EOF RETURN 1, ELSE 0
+CHKEOF   MKPTR MPOS;ZPTR
+         LDY   #$03
+         JSR   DEBUGY
+         LDA   MPOS
+         CMP   EOF
+         BNE   :NOT_EOF
+         LDA   MPOS+1
+         CMP   EOF+1
+         BNE   :NOT_EOF
+         LDA   MPOS+2
+         CMP   EOF+2
+         BNE   :NOT_EOF
+         LDA   #$01
+         RTS
+:NOT_EOF LDA   #$00
+         RTS
+
+* COPY FILE, ERR RETURNED IN STAT
 COPY     PATH  SRC_PRE
          MLI   PREFIX;PRPARMS
          PATH  SRC_PTH
@@ -191,23 +485,25 @@ COPY     PATH  SRC_PRE
          STA   STAT       ; RESTORE STAT
          RTS
 
+AMPCPY   ASC   '"COPY"'
+AMPVOL   ASC   '"VOLS"'
 
 * PRODOS MLI PARAMETER BLOCKS
 
 * VOLUME INFO
 VPARMS   DFB   2
-         DFB   0          ; ALL SLOTS
-         DW    STRBUF
+         DFB   0          ; ALL SLOTS AND DRIVES
+         DW    VOLBUF
 
 * OPEN INPUT FILE
 IFPARMS  DFB   3
-         DW    STRBUF     ; PATH
+         DW    PATHBUF
          DW    IBUF       ; 1K
 IREF     DFB   0
 
 * OPEN OUTPUT FILE
 OFPARMS  DFB   3
-         DW    STRBUF     ; PATH
+         DW    PATHBUF
          DW    OBUF       ; 1K
 OREF     DFB   0
 
@@ -231,7 +527,7 @@ CLREF    DFB   0
 
 * FILE INFO
 FPARMS   DFB   10
-         DW    STRBUF     ; PATH
+         DW    PATHBUF
 ACCESS   DFB   0
 FTYP     DFB   0
 AUX      DW    0
@@ -242,11 +538,11 @@ CRTIME   DW    0,0
 
 * PREFIX
 PRPARMS  DFB   1
-PRPATH   DW    STRBUF
+         DW    PATHBUF
                    
 * CREATE
 CRPARMS   DFB   7
-CRPATH    DW    STRBUF
+          DW    PATHBUF
 CRACCESS  DFB   0
 CRFTYP    DFB   0
 CRAUX     DW    0

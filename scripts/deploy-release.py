@@ -23,7 +23,7 @@ project_path = pathlib.Path(sys.argv[2])
 distro_path = pathlib.Path(sys.argv[3]) / ('Realm-'+v)
 
 os.makedirs(distro_path,exist_ok=True)
-print('Clean distro folder first ?')
+print('Clean',str(distro_path),'first ?')
 print('(deletes all files - enter y to delete)')
 ans = input()
 if ans=='y':
