@@ -1,5 +1,5 @@
 * Program to print message if the user tries to boot a
-* non-bootable disks.  Object code has to be zapped
+* non-bootable disk.  Object code has to be zapped
 * into the boot sector (track 0, sector 0).
          ORG   $800
 CH       =     $24

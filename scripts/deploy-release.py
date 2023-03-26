@@ -23,20 +23,42 @@ project_path = pathlib.Path(sys.argv[2])
 distro_path = pathlib.Path(sys.argv[3]) / ('Realm-'+v)
 
 os.makedirs(distro_path,exist_ok=True)
-print('Clean',str(distro_path),'first ?')
-print('(deletes all files - enter y to delete)')
-ans = input()
-if ans=='y':
-    cleanstr = glob.glob(str(distro_path / "*"))
-    for f in cleanstr:
-        print('delete '+f)
-        os.remove(f)
+cleanstr = glob.glob(str(distro_path/"*"))
+if len(cleanstr)>0:
+    print('Clean',str(distro_path),'first ?')
+    print('(deletes all files - enter y to delete)')
+    ans = input()
+    if ans=='y':
+        for f in cleanstr:
+            print('delete '+f)
+            os.remove(f)
 
-subprocess.run(['python','deploy-dos33.py','do',project_path,distro_path])
-subprocess.run(['python','deploy-dos33.py','woz',project_path,distro_path])
+# print("Deploy DOS 3.3 DO disks...")
+# compl = subprocess.run(['python','deploy-dos33.py','do',project_path,distro_path])
+# if compl.returncode>0:
+#     raise RuntimeError('subprocess failed')
 
-subprocess.run(['python','deploy-prodos.py','po',project_path,distro_path])
-subprocess.run(['python','deploy-prodos.py','woz',project_path,distro_path])
+print("Deploy DOS 3.3 WOZ disks")
+compl = subprocess.run(['python','deploy-dos33.py','woz',project_path,distro_path])
+if compl.returncode>0:
+    raise RuntimeError('subprocess failed')
 
-subprocess.run(['python','deploy-installer.py','do',project_path,distro_path])
-subprocess.run(['python','deploy-installer.py','woz',project_path,distro_path])
+print("Deploy ProDOS PO logical volume...")
+compl = subprocess.run(['python','deploy-prodos.py','po',project_path,distro_path])
+if compl.returncode>0:
+    raise RuntimeError('subprocess failed')
+
+print("Deploy ProDOS WOZ 3.5 inch disk...")
+compl = subprocess.run(['python','deploy-prodos.py','woz',project_path,distro_path])
+if compl.returncode>0:
+    raise RuntimeError('subprocess failed')
+
+# print("Deploy Installer DO disks...")
+# compl = subprocess.run(['python','deploy-installer.py','do',project_path,distro_path])
+# if compl.returncode>0:
+#     raise RuntimeError('subprocess failed')
+
+print("Deploy Installer WOZ disks...")
+compl = subprocess.run(['python','deploy-installer.py','woz',project_path,distro_path])
+if compl.returncode>0:
+    raise RuntimeError('subprocess failed')

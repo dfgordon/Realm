@@ -84,7 +84,8 @@ bin_files = [
     {"name": "MAP.INTRP#06163e", "load": 0x163e, "folder": mc_folder},
     {"name": "OUTSPS#060800", "load": 0x800, "folder": sprite_folder},
     {"name": "TWNSPS#060800", "load": 0x800, "folder": sprite_folder},
-    {"name": "DNGNSPS#060800", "load": 0x800, "folder": sprite_folder}
+    {"name": "DNGNSPS#060800", "load": 0x800, "folder": sprite_folder},
+    {"name": "DISKLIB#064000", "load": 0x4000, "folder": mc_folder}
 ]
 
 text_files = [
@@ -139,12 +140,17 @@ for dict in prog_files:
     else:
         addr0 = dict['load']
     src = a2kit_beg(['get','-f',src_path])
-    tok = a2kit_pipe(['tokenize','-t','atxt','-a',str(addr0+1)], src)
-    max_lens = {0xb00:0x4ff, 0x800:0x7ff, 0x4000:0x2cff, 0x1000:0x5ab}
-    if addr0 in max_lens and len(tok) > max_lens[addr0]:
-        if dict['name']!='FINAL' and dict['name']!="LAUNCH":
-            print('ERROR: program',dict['name'],'is too long')
-            exit(1)
+    min = a2kit_pipe(['minify','-t','atxt'], src)
+    tok = a2kit_pipe(['tokenize','-t','atxt','-a',str(addr0+1)], min)
+    if dict['name']=='LAUNCH':
+        max_len = 0x37ff
+    elif dict['name']=='FINAL':
+        max_len = 0x17ff
+    else:
+        max_len = {0xb00:0x4ff, 0x800:0x7ff, 0x4000:0x2cff, 0x1000:0x5ab}[addr0]
+    if len(tok) > max_len:
+        print('ERROR: program',dict['name'],'is too long')
+        exit(1)
     if dict['load']==None:
         a2kit_end(['put','-t','atok','-f',dst_path,'-d',disk_path], tok)
     else:

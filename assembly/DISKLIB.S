@@ -7,13 +7,15 @@
 *    P1$/P2$ IS THE SOURCE PATH
 *    P3$/P4$ IS THE DESTINATION PATH
 *    USE ABSOLUTE PREFIXES
-* USES STORAGE FROM $4500 to $5400
+*    N.B. P3$ WILL BE THE NEW PREFIX
+* USES STORAGE FROM $4500 to $5200
+* ONERR HANDLERS MAY RECEIVE MLI CODES
 
          ORG   $4000
 
 * MY ZERO PAGE
 
-STAT     =     $06        ; ERROR STATUS
+STAT     =     $06        ; PRODOS MLI ERROR CODE
 DBG      =     $08        ; DEBUG FLAG
 VCOUNT   =     $1E        ; VOLUMES ONLINE
 VPTR     =     $CE        ; VOLUME STRING ARRAY
@@ -49,14 +51,19 @@ GETEOF   =     $D1
 
 ILLQTY   =     $35        ; ILLEGAL QUANTITY
 STRLNG   =     $B0        ; STRING TOO LONG
+BADSUB   =     $6B        ; BAD SUBSCRIPT
+ERRFLG   =     $D8
 DSCTMP   =     $9D        ; STRING DESC = LEN,LO,HI
 FAC      =     $9D        ; FP ACCUMULATOR
 VARPNT   =     $83
 LOWTR    =     $9B
 TXTPTR   =     $B8
+VALTYP   =     $11        ; $00=NUM, $FF=STR
+INTFLG   =     $12        ; $00=NO, $80=YES
 
 * ROM ROUTINES
 
+BELL     =     $FF3A
 PRBYTE   =     $FDDA
 COUT     =     $FDED
 DATA     =     $D995
@@ -70,18 +77,21 @@ PTRGET   =     $DFE3
 ARYGET   =     $F7D9
 STRINI   =     $E3D5
 MOVSTR   =     $E5E2
-MOVMF    =     $EB2E
+MOVMF    =     $EB2B
 MOVFM    =     $EAF9
 FLOAT2   =     $EBA0
 INT2FP   =     $E2F2
 SNERR    =     $DEC9
-DOERR    =     $D419
+DOERR    =     $D412
+RESTART  =     $D43C
+STKINI   =     $D683
 
 MLI      MAC
          JSR   MLI_ADDR
          DFB   ]1
          DW    ]2
          STA   STAT       ; STORE ERR CODE
+         CMP   #$00
          <<<
 
 MKPTR    MAC
@@ -160,30 +170,43 @@ DISPATCH LDA   #$00
 :GETVOL  JSR   CHKCOM
          JSR   DEBUGT
          JSR   ARYGET
+         JSR   CHKSTR
          JSR   CHKARY
-         LDA   STAT
-         BNE   :FIN
          CP16  LOWTR;VPTR
          JSR   CHKCOM
          JSR   DEBUGT
          JSR   ARYGET
+         JSR   CHKFP
          JSR   CHKARY
-         LDA   STAT
-         BNE   :FIN
          CP16  LOWTR;CPTR
          JSR   CHKCOM
          JSR   DEBUGT
          JSR   PTRGET
+         JSR   CHKFP
          CP16  VARPNT;NPTR
          JSR   DEBUGT
          JSR   CHKCLS
          JSR   GETVOL
 
 :FIN     LDA   STAT
-         BEQ   :RET
-         LDX   STAT
+         BNE   :DSKERR
+         JMP   DATA       ; NEXT APPLESOFT STATEMENT
+:DSKERR  BIT   ERRFLG
+         BMI   :ONERR
+         JSR   BELL       ; TAKE OVER PRINTING ERROR MSG
+         LDY   #$00
+:PR      LDA   GENERR,Y
+         CMP   #$00
+         BEQ   :PRCODE
+         JSR   COUT
+         INY
+         JMP   :PR
+:PRCODE  LDA   STAT
+         JSR   PRBYTE
+         JSR   STKINI
+         JMP   RESTART
+:ONERR   LDX   STAT       ; MLI CODE TO ONERR HANDLER
          JMP   DOERR
-:RET     JMP   DATA       ; NEXT APPLESOFT STATEMENT
 
 * PRINT Y DEBUG BYTES AT ZPTR IN REVERSE ORDER
 * Y MUST NOT EXCEED $7F
@@ -245,8 +268,10 @@ TRYCMD   LDA   TXTPTR
          RTS
 
 * LOAD STRING PARAM INTO ZPTR
+* JUMPS TO DOERR IF NOT A STRING OR STRING TOO LONG
 GETSTR   JSR   CHKCOM
-         JSR   PTRGET     ; TODO: VERIFY IT IS A STRING
+         JSR   PTRGET
+         JSR   CHKSTR
          LDY   #$00
          LDA   (VARPNT),Y
          STA   DSCTMP
@@ -265,9 +290,8 @@ GETSTR   JSR   CHKCOM
          STA   (ZPTR),Y
          CPY   #$3F
          BNE   :OK
-         LDA   #STRLNG
-         STA   STAT
-         RTS
+         LDX   #STRLNG
+         JMP   DOERR
 :OK      DEX
          BEQ   :FIN
          JMP   :LOOP
@@ -296,7 +320,7 @@ LDSTR    LDY   #$00
          RTS
 
 * GET AVAILABLE BLOCKS OF VOLUME WITH NAME AT ZPTR
-* PUT RESULT IN CPTR
+* PUT RESULT IN CPTR, ERR RETURNED IN STAT
 LDFP     LDY   #$00
          LDA   (ZPTR),Y
          AND   #$0F
@@ -311,7 +335,6 @@ LDFP     LDY   #$00
          STA   PATHBUF+1,Y
          JMP   :LOOP
 :READY   MLI   GETFINF;FPARMS
-         CMP   #$00
          BEQ   :OK
          RTS              ; ERR
 :OK      SEC
@@ -331,6 +354,19 @@ LDFP     LDY   #$00
          JSR   MOVMF
          RTS
 
+CHKSTR   LDA   VALTYP
+         BMI   :STR
+         JMP   SNERR
+:STR     RTS
+
+CHKFP    LDA   VALTYP
+         BPL   :NUM
+         JMP   SNERR
+:NUM     LDA   INTFLG
+         BPL   :FP
+         JMP   SNERR
+:FP      RTS
+
 * CHECK ARRAY LEN>15 AND DIMS=1
 CHKARY   CP16  LOWTR;ZPTR
          LDY   #$07
@@ -339,7 +375,8 @@ CHKARY   CP16  LOWTR;ZPTR
          LDA   (LOWTR),Y  ; DIMS
          CMP   #$01
          BEQ   :DIMOK
-         JMP   :ILLQTY
+         LDX   #BADSUB
+         JMP   DOERR
 :DIMOK   LDY   #$05       ; LEN IS BIG-ENDIAN
                           ; WORDS ALSO REVERSE ORDER
          LDA   (LOWTR),Y
@@ -348,8 +385,8 @@ CHKARY   CP16  LOWTR;ZPTR
          LDA   (LOWTR),Y
          AND   #$F0
          BNE   :LENOK
-:ILLQTY  LDA   #ILLQTY
-         STA   STAT
+         LDX   #BADSUB
+         JMP   DOERR
 :LENOK   RTS
 
 * GET VOLUME INFO
@@ -358,7 +395,6 @@ CHKARY   CP16  LOWTR;ZPTR
 * LOAD COUNT INTO FP VARIABLE AT NPTR
 * ERR IS RETURNED IN STAT
 GETVOL   MLI   ONLINE;VPARMS ; 16 BYTE ENTRIES IN STRBUF
-         LDA   STAT
          BEQ   :OK
          RTS              ; ERR
 :OK      MKPTR VOLBUF;ZPTR
@@ -421,37 +457,36 @@ CHKEOF   MKPTR MPOS;ZPTR
 * COPY FILE, ERR RETURNED IN STAT
 COPY     PATH  SRC_PRE
          MLI   PREFIX;PRPARMS
-         PATH  SRC_PTH
+         BEQ   :SPOK
+         RTS              ; ERR
+:SPOK    PATH  SRC_PTH
          MLI   GETFINF;FPARMS
-         CMP   #$00
          BEQ   :CREATE
          RTS              ; ERR
 :CREATE  JSR   COPYINFO
          PATH  DST_PRE
          MLI   PREFIX;PRPARMS
-         PATH  DST_PTH
+         BEQ   :DPOK
+         RTS              ; ERR
+:DPOK    PATH  DST_PTH
          MLI   CREATE;CRPARMS
-         CMP   #$00
          BEQ   :IOPEN
          RTS              ; ERR
 :IOPEN   PATH  SRC_PRE
          MLI   PREFIX;PRPARMS
          PATH  SRC_PTH
          MLI   OPEN;IFPARMS
-         CMP   #$00
          BEQ   :GETEOF
          RTS              ; ERR
 :GETEOF  LDA   IREF
          STA   EREF
          MLI   GETEOF;EPARMS
-         CMP   #$00
          BEQ   :OOPEN
          RTS              ; ERR
 :OOPEN   PATH  DST_PRE
          MLI   PREFIX;PRPARMS
          PATH  DST_PTH
          MLI   OPEN;OFPARMS
-         CMP   #$00
          BEQ   :BEGIN
          LDA   IREF
          STA   CLREF
@@ -463,15 +498,12 @@ COPY     PATH  SRC_PRE
          LDA   OREF
          STA   WRREF
 :LOOP    MLI   READ;RDPARMS
-         CMP   #$00
          BNE   :FIN
          CP16  RDACTUAL;WRREQ
          MLI   WRITE;WRPARMS
-         CMP   #$00
          BNE   :FIN
          MLI   GETMRK;MPARMS
          JSR   CHKEOF
-         CMP   #$00
          BEQ   :LOOP
 :FIN     LDA   STAT
          PHA              ; SAVE LAST STAT     
@@ -487,6 +519,7 @@ COPY     PATH  SRC_PRE
 
 AMPCPY   ASC   '"COPY"'
 AMPVOL   ASC   '"VOLS"'
+GENERR   ASC   "PRODOS MLI ERR $",00
 
 * PRODOS MLI PARAMETER BLOCKS
 

@@ -16,9 +16,10 @@ Error checking the maps
 Error checking the BASIC programs
 ---------------------------------
 
-1. Use the [Applesoft language server](https://github.com/dfgordon/vscode-language-applesoft) to verify syntax while editing
+1. Use the [Applesoft language server](https://github.com/dfgordon/vscode-language-applesoft) while editing
 
-    * Ignore branching errors to do with inter-program branching
+    * This will catch a lot of errors
+    * It is not aware of inter-program branching as of this writing
 
 2. Run `verify.py`.  This carries out the following checks:
 
@@ -39,4 +40,4 @@ When renumbering BASIC programs (to save space), the inter-program branching sch
 Deploy to Disk Images
 ---------------------
 
-All disk images can be deployed in seconds using `deploy-release.py`.  This calls `deploy-dos33.py`, `deploy-prodos.py`, and `deploy-installer`.  These in turn make heavy use of `a2kit`.  The script generates both WOZ and DO/PO versions of the distribution.
+All disk images can be deployed in seconds using `deploy-release.py`.  This calls `deploy-dos33.py`, `deploy-prodos.py`, and `deploy-installer`.  These in turn make heavy use of `a2kit`.  The script generates both WOZ and DO/PO versions of the distribution.  The [wiki](https://github.com/dfgordon/Realm/wiki) has more.
