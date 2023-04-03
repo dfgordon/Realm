@@ -6,16 +6,19 @@
 * &("COPY",P1$,P2$,P3$,P4$)
 *    P1$/P2$ IS THE SOURCE PATH
 *    P3$/P4$ IS THE DESTINATION PATH
+*    NO EXPRESSIONS OR LITERALS
 *    USE ABSOLUTE PREFIXES
 *    N.B. P3$ WILL BE THE NEW PREFIX
-* USES STORAGE FROM $4500 to $5200
+* USES FIXED BUFFERS FROM $4600 to $5300
 * ONERR HANDLERS MAY RECEIVE MLI CODES
+* POKE 8,0 TO SUPPRESS DEBUG MESSAGES
 
          ORG   $4000
 
 * MY ZERO PAGE
 
 STAT     =     $06        ; PRODOS MLI ERROR CODE
+OMAP     =     $07        ; BITMAP OF OPEN FILES
 DBG      =     $08        ; DEBUG FLAG
 VCOUNT   =     $1E        ; VOLUMES ONLINE
 VPTR     =     $CE        ; VOLUME STRING ARRAY
@@ -26,16 +29,17 @@ ZPTR     =     $FE        ; GENERAL PTR
 * PRODOS MLI AND PARAMS
 
 MLI_ADDR =     $BF00
-VOLBUF   =     $4500      ; PREFIX STRINGS WITH LEN
-SRC_PRE  =     $4600
-SRC_PTH  =     $4640
-DST_PRE  =     $4680
-DST_PTH  =     $46C0
-PATHBUF  =     $4700
-IBUF     =     $4800
-OBUF     =     $4C00
-WRKBUF   =     $5000
+VOLBUF   =     $4600      ; PREFIX STRINGS WITH LEN
+SRC_PRE  =     $4700
+SRC_PTH  =     $4740
+DST_PRE  =     $4780
+DST_PTH  =     $47C0
+PATHBUF  =     $4800
+SRC_BUF  =     $4900
+DST_BUF  =     $4D00
+WRKBUF   =     $5100
 CREATE   =     $C0
+SETFINF  =     $C3
 GETFINF  =     $C4
 ONLINE   =     $C5
 PREFIX   =     $C6
@@ -334,7 +338,9 @@ LDFP     LDY   #$00
          LDA   (ZPTR),Y
          STA   PATHBUF+1,Y
          JMP   :LOOP
-:READY   MLI   GETFINF;FPARMS
+:READY   LDA   #$0A
+         STA   FPARMS
+         MLI   GETFINF;FPARMS
          BEQ   :OK
          RTS              ; ERR
 :OK      SEC
@@ -455,65 +461,85 @@ CHKEOF   MKPTR MPOS;ZPTR
          RTS
 
 * COPY FILE, ERR RETURNED IN STAT
-COPY     PATH  SRC_PRE
+COPY     LDA   #$00
+         STA   OMAP
+         PATH  SRC_PRE
          MLI   PREFIX;PRPARMS
          BEQ   :SPOK
-         RTS              ; ERR
+         JMP   :CLS
 :SPOK    PATH  SRC_PTH
+         LDA   #$0A
+         STA   FPARMS
          MLI   GETFINF;FPARMS
          BEQ   :CREATE
-         RTS              ; ERR
+         JMP   :CLS
 :CREATE  JSR   COPYINFO
          PATH  DST_PRE
          MLI   PREFIX;PRPARMS
          BEQ   :DPOK
-         RTS              ; ERR
+         JMP   :CLS
 :DPOK    PATH  DST_PTH
          MLI   CREATE;CRPARMS
-         BEQ   :IOPEN
-         RTS              ; ERR
-:IOPEN   PATH  SRC_PRE
+         BEQ   :SRC_OP    ; NEW
+         CMP   #$47       ; DUPLICATE FILENAME
+         BEQ   :OVRWRT
+         JMP   :CLS
+:OVRWRT  LDA   #$07
+         STA   FPARMS
+         MLI   SETFINF;FPARMS
+         BEQ   :SRC_OP
+         JMP   :CLS
+:SRC_OP  PATH  SRC_PRE
          MLI   PREFIX;PRPARMS
          PATH  SRC_PTH
-         MLI   OPEN;IFPARMS
+         MLI   OPEN;SRCPARMS
          BEQ   :GETEOF
-         RTS              ; ERR
-:GETEOF  LDA   IREF
+         JMP   :CLS
+:GETEOF  LDA   OMAP
+         ORA   #$01       ; SRC IS OPEN
+         STA   OMAP
+         LDA   SRC_REF
          STA   EREF
          MLI   GETEOF;EPARMS
-         BEQ   :OOPEN
-         RTS              ; ERR
-:OOPEN   PATH  DST_PRE
+         BEQ   :DST_OP
+         JMP   :CLS
+:DST_OP  PATH  DST_PRE
          MLI   PREFIX;PRPARMS
          PATH  DST_PTH
-         MLI   OPEN;OFPARMS
+         MLI   OPEN;DSTPARMS
          BEQ   :BEGIN
-         LDA   IREF
-         STA   CLREF
-         MLI   CLOSE;CLPARMS
-         RTS              ; ERR
-:BEGIN   LDA   IREF
+         JMP   :CLS
+:BEGIN   LDA   OMAP
+         ORA   #$02       ; DST IS OPEN
+         STA   OMAP
+         LDA   SRC_REF
          STA   RDREF
          STA   MREF
-         LDA   OREF
+         LDA   DST_REF
          STA   WRREF
 :LOOP    MLI   READ;RDPARMS
-         BNE   :FIN
+         BNE   :CLS
          CP16  RDACTUAL;WRREQ
          MLI   WRITE;WRPARMS
-         BNE   :FIN
+         BNE   :CLS
          MLI   GETMRK;MPARMS
          JSR   CHKEOF
          BEQ   :LOOP
-:FIN     LDA   STAT
-         PHA              ; SAVE LAST STAT     
-         LDA   IREF
+:CLS     LDA   STAT
+         PHA              ; SAVE LAST STAT
+         LDA   OMAP
+         AND   #$02
+         BEQ   :CLS2
+         LDA   DST_REF
          STA   CLREF
          MLI   CLOSE;CLPARMS
-         LDA   OREF
+:CLS2    LDA   OMAP
+         AND   #$01
+         BEQ   :FIN
+         LDA   SRC_REF
          STA   CLREF
          MLI   CLOSE;CLPARMS
-         PLA
+:FIN     PLA
          STA   STAT       ; RESTORE STAT
          RTS
 
@@ -528,17 +554,17 @@ VPARMS   DFB   2
          DFB   0          ; ALL SLOTS AND DRIVES
          DW    VOLBUF
 
-* OPEN INPUT FILE
-IFPARMS  DFB   3
+* OPEN SOURCE FILE
+SRCPARMS DFB   3
          DW    PATHBUF
-         DW    IBUF       ; 1K
-IREF     DFB   0
+         DW    SRC_BUF       ; 1K
+SRC_REF  DFB   0
 
-* OPEN OUTPUT FILE
-OFPARMS  DFB   3
+* OPEN DESTINATION FILE
+DSTPARMS DFB   3
          DW    PATHBUF
-         DW    OBUF       ; 1K
-OREF     DFB   0
+         DW    DST_BUF       ; 1K
+DST_REF  DFB   0
 
 * READ ANY FILE
 RDPARMS  DFB   4
@@ -558,8 +584,9 @@ WRACTUAL DW    0
 CLPARMS  DFB   1
 CLREF    DFB   0
 
-* FILE INFO
-FPARMS   DFB   10
+* SET/GET INFO
+FPARMS   DFB   10         ; CHANGE TO 7 FOR SET
+                          ; CHANGE TO 10 FOR GET
          DW    PATHBUF
 ACCESS   DFB   0
 FTYP     DFB   0

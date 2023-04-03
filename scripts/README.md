@@ -40,4 +40,4 @@ When renumbering BASIC programs (to save space), the inter-program branching sch
 Deploy to Disk Images
 ---------------------
 
-All disk images can be deployed in seconds using `deploy-release.py`.  This calls `deploy-dos33.py`, `deploy-prodos.py`, and `deploy-installer`.  These in turn make heavy use of `a2kit`.  The script generates both WOZ and DO/PO versions of the distribution.  The [wiki](https://github.com/dfgordon/Realm/wiki) has more.
+All disk images can be deployed in seconds using `deploy-release.py`.  This calls `deploy-dos33.py`, `deploy-prodos.py`, and `deploy-installer`.  These in turn make heavy use of `a2kit`.  The [wiki](https://github.com/dfgordon/Realm/wiki) has more.
