@@ -3,12 +3,11 @@
 *    VO$(16) RECEIVES THE NAMES
 *    CAP(16) RECEIVES THE AVAILABLE BLOCKS
 *    N RECEIVES NUMBER FOUND (N MUST EXIST)
-* &("COPY",P1$,P2$,P3$,P4$)
-*    P1$/P2$ IS THE SOURCE PATH
-*    P3$/P4$ IS THE DESTINATION PATH
-*    NO EXPRESSIONS OR LITERALS
-*    USE ABSOLUTE PREFIXES
-*    N.B. P3$ WILL BE THE NEW PREFIX
+* &("COPY",<EXPR1>,<EXPR2>,<EXPR3>,<EXPR4>)
+*    <EXPR1>-<EXPR4> ARE STRING EXPRESSIONS
+*    1 = SRC PREFIX, 2 = SRC PATH
+*    3 = DST PREFIX, 4 = DST PATH
+*    NB NULL PREFIX CLEARS THE PREFIX
 * USES FIXED BUFFERS FROM $4600 to $5300
 * ONERR HANDLERS MAY RECEIVE MLI CODES
 * POKE 8,0 TO SUPPRESS DEBUG MESSAGES
@@ -24,7 +23,7 @@ VCOUNT   =     $1E        ; VOLUMES ONLINE
 VPTR     =     $CE        ; VOLUME STRING ARRAY
 CPTR     =     $EB        ; CAPACITY FP ARRAY
 NPTR     =     $FA        ; COUNT VARIABLE
-ZPTR     =     $FE        ; GENERAL PTR
+ZPTR     =     $FC        ; GENERAL PTR
 
 * PRODOS MLI AND PARAMS
 
@@ -58,6 +57,7 @@ STRLNG   =     $B0        ; STRING TOO LONG
 BADSUB   =     $6B        ; BAD SUBSCRIPT
 ERRFLG   =     $D8
 DSCTMP   =     $9D        ; STRING DESC = LEN,LO,HI
+INDEX    =     $5E        ; STR PTR
 FAC      =     $9D        ; FP ACCUMULATOR
 VARPNT   =     $83
 LOWTR    =     $9B
@@ -76,11 +76,14 @@ CHRGOT   =     $B7
 CHKCOM   =     $DEBE
 CHKOPN   =     $DEBB
 CHKCLS   =     $DEB8
-ISLETC   =     $E07D
 PTRGET   =     $DFE3
 ARYGET   =     $F7D9
+FRMEVL   =     $DD7B
 STRINI   =     $E3D5
 MOVSTR   =     $E5E2
+GETSTR   =     $E6DC      ; CHECKS AND FREES TEMP STR
+                          ; STR CAN BE ACCESSED AT (INDEX)
+                          ; UNTIL OVERWRITTEN
 MOVMF    =     $EB2B
 MOVFM    =     $EAF9
 FLOAT2   =     $EBA0
@@ -160,14 +163,15 @@ DISPATCH LDA   #$00
          JMP   SNERR
 
 :COPY    MKPTR SRC_PRE;ZPTR
-         JSR   GETSTR
+         JSR   SX2ZPTR
          MKPTR SRC_PTH;ZPTR
-         JSR   GETSTR
+         JSR   SX2ZPTR
          MKPTR DST_PRE;ZPTR
-         JSR   GETSTR
+         JSR   SX2ZPTR
          MKPTR DST_PTH;ZPTR
-         JSR   GETSTR
+         JSR   SX2ZPTR
          JSR   CHKCLS
+         JSR   DBGPTHS
          JSR   COPY
          JMP   :FIN
 
@@ -211,6 +215,37 @@ DISPATCH LDA   #$00
          JMP   RESTART
 :ONERR   LDX   STAT       ; MLI CODE TO ONERR HANDLER
          JMP   DOERR
+
+* PRINT PREFIXED STR AT ZPTR
+DEBUGS   LDA   DBG
+         BEQ   :FIN
+         LDY   #$00
+         LDA   (ZPTR),Y
+         BEQ   :NULL
+         TAX
+:LOOP    INY
+         LDA   (ZPTR),Y
+         ORA   #$80
+         JSR   COUT
+         DEX
+         BEQ   :CR
+         JMP   :LOOP
+:NULL    LDA   #"*"
+         JSR   COUT
+:CR      LDA   #$8D
+         JSR   COUT
+:FIN     RTS
+
+* PRINT PATH BUFFERS
+DBGPTHS  MKPTR SRC_PRE;ZPTR
+         JSR   DEBUGS
+         MKPTR SRC_PTH;ZPTR
+         JSR   DEBUGS
+         MKPTR DST_PRE;ZPTR
+         JSR   DEBUGS
+         MKPTR DST_PTH;ZPTR
+         JSR   DEBUGS
+         RTS
 
 * PRINT Y DEBUG BYTES AT ZPTR IN REVERSE ORDER
 * Y MUST NOT EXCEED $7F
@@ -271,25 +306,15 @@ TRYCMD   LDA   TXTPTR
          LDA   #$01
          RTS
 
-* LOAD STRING PARAM INTO ZPTR
-* JUMPS TO DOERR IF NOT A STRING OR STRING TOO LONG
-GETSTR   JSR   CHKCOM
-         JSR   PTRGET
-         JSR   CHKSTR
-         LDY   #$00
-         LDA   (VARPNT),Y
-         STA   DSCTMP
-         INY
-         LDA   (VARPNT),Y
-         STA   DSCTMP+1
-         INY
-         LDA   (VARPNT),Y
-         STA   DSCTMP+2
-         LDX   DSCTMP
-         LDY   #$00
-         TXA
+* LOAD STRING EXPR INTO ZPTR
+* JMP TO ERR IF NOT STRING OR STRING TOO LONG
+SX2ZPTR  JSR   CHKCOM
+         JSR   FRMEVL
+         JSR   GETSTR
+         TAX              ; DECREASING LOOP VAR
+         LDY   #$00       ; INCREASING LOOP VAR
          STA   (ZPTR),Y   ; LEN PREFIX
-:LOOP    LDA   (DSCTMP+1),Y
+:LOOP    LDA   (INDEX),Y
          INY
          STA   (ZPTR),Y
          CPY   #$3F
@@ -410,7 +435,7 @@ GETVOL   MLI   ONLINE;VPARMS ; 16 BYTE ENTRIES IN STRBUF
          STA   VCOUNT
 :LOOP    LDY   #$00
          LDA   (ZPTR),Y   ; LO-NIB = LEN, HI-NIB = ERR
-         BEQ   :FIN    ; NO MORE
+         BEQ   :FIN       ; NO MORE
          AND   #$0F
          BEQ   :REP       ; SLOT/DRIVE EMPTY
          JSR   LDSTR
