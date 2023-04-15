@@ -48,6 +48,7 @@ WRITE    =     $CB
 CLOSE    =     $CC
 SETMRK   =     $CE
 GETMRK   =     $CF
+SETEOF   =     $D0
 GETEOF   =     $D1
 
 * ROM POINTERS AND CONSTANTS
@@ -550,6 +551,9 @@ COPY     LDA   #$00
          MLI   GETMRK;MPARMS
          JSR   CHKEOF
          BEQ   :LOOP
+         LDA   DST_REF
+         STA   EREF
+         MLI   SETEOF;EPARMS
 :CLS     LDA   STAT
          PHA              ; SAVE LAST STAT
          LDA   OMAP

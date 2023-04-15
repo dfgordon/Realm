@@ -62,3 +62,9 @@ print("Deploy Installer WOZ disks...")
 compl = subprocess.run(['python','deploy-installer.py','woz',project_path,distro_path])
 if compl.returncode>0:
     raise RuntimeError('subprocess failed')
+
+print("Add version designations")
+unversioned = glob.glob(str(distro_path/"*"))
+for f in unversioned:
+    ext = pathlib.Path(f).name.split('.')[-1]
+    os.rename(f,f[:-len(ext)-1]+"-"+v+"."+ext)
