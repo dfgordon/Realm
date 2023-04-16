@@ -14,6 +14,12 @@ import pathlib
 import sys
 import difflib
 import json
+import platform
+
+pyvers = platform.python_version_tuple()
+if int(pyvers[0])<3 or int(pyvers[1])<8:
+    print('script requires python 3.8 or higher')
+    exit(1)
 
 issue_count = 0
 

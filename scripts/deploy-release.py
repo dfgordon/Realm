@@ -5,12 +5,18 @@ import os
 import glob
 import pathlib
 import subprocess
+import platform
+
+pyvers = platform.python_version_tuple()
+if int(pyvers[0])<3 or int(pyvers[1])<8:
+    print('script requires python 3.8 or higher')
+    exit(1)
 
 if len(sys.argv)!=4:
     print('Usage: release.py <vers> <proj_path> <distro_path>')
     print('<vers> should be in the form x.x.x')
     print('<proj_path> is the main Realm project directory')
-    print('<distro_path> should not include the last node (will be Realm vx.x.x)')
+    print('<distro_path> should not include the last node (will be Realm vxxx)')
     exit(0)
 
 if len(sys.argv[1].split('.'))!=3:

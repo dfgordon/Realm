@@ -1,7 +1,7 @@
 *Realm* Overview
 =================
 
-*Realm* is an adventure game written in the 1980's for Apple \]\[, but never released until 2021. Today it can be played on emulators or vintage computers.  It was inspired mainly by [Ultima](https://en.wikipedia.org/wiki/Ultima_I:_The_First_Age_of_Darkness) and [D&D](https://en.wikipedia.org/wiki/Dungeons_%26_Dragons).
+*Realm* is an adventure game written in the 1980's for Apple \]\[, but never released until 2021. Today it can be played on emulators or vintage computers.  See the [wiki](https://github.com/dfgordon/Realm/wiki) for more.
 
 Story Synopsis
 ===============

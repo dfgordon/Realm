@@ -1,6 +1,12 @@
 import subprocess
 import pathlib
 import sys
+import platform
+
+pyvers = platform.python_version_tuple()
+if int(pyvers[0])<3 or int(pyvers[1])<8:
+    print('script requires python 3.8 or higher')
+    exit(1)
 
 if len(sys.argv)!=4:
     print('usage: python '+sys.argv[0]+' <img_type> <project_path> <distro_path>')

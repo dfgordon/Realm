@@ -110,19 +110,21 @@ check_consistency(chklines,'defenses')
 files = ["../basic-dos33/AUTOSTART.bas","../basic-dos33/LAUNCH.bas","../basic-prodos/LAUNCH.bas"]
 chklines = get_line_table(files,8300,8400)
 check_consistency(chklines,'proficiency table')
-chklines = get_line_table(files,8040,8200)
+chklines = get_line_table(files,8050,8200)
 check_consistency(chklines,'global declarations')
 
+# In v1.5.0 the LAUNCH programs have further diverged
+# so checks a bit more restricted than we would like
 files = ["../basic-dos33/LAUNCH.bas","../basic-prodos/LAUNCH.bas"]
-chklines = get_line_table(files,102,200)
-check_consistency(chklines,'main menu')
-chklines = get_line_table(files,200,400)
-check_consistency(chklines,'character generator subs')
-chklines = get_line_table(files,1100,1700)
+# chklines = get_line_table(files,102,200)
+# check_consistency(chklines,'main menu')
+# chklines = get_line_table(files,200,400)
+# check_consistency(chklines,'character generator subs')
+chklines = get_line_table(files,1100,1516)
 check_consistency(chklines,'character generator')
-chklines = get_line_table(files,1800,2000)
+chklines = get_line_table(files,1800,1950)
 check_consistency(chklines,'party ops')
-chklines = get_line_table(files,7500,8000)
+chklines = get_line_table(files,7500,7625)
 check_consistency(chklines,'help')
 
 # Check inventory short-hand used in COMBAT.bas
