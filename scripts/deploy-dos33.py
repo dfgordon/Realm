@@ -1,45 +1,44 @@
-import subprocess
 import pathlib
 import sys
-import platform
+import a2kit
 
-pyvers = platform.python_version_tuple()
-if int(pyvers[0])<3 or int(pyvers[1])<8:
-    print('script requires python 3.8 or higher')
+if not a2kit.chk_vers((1,8,0),(2,4,2)):
     exit(1)
+
+fmt = {
+    'woz': {
+        'ext': 'woz',
+        'typ': ['-t','woz2'],
+    },
+    'do': {
+        'ext': 'do',
+        'typ': ['-t','do'],
+    },
+    '2mg-do': {
+        'ext': '2mg',
+        'typ': ['-t','2mg','-w','do']
+    },
+    'nib': {
+        'ext': 'nib',
+        'typ': ['-t','nib'],
+    },
+    '2mg-nib': {
+        'ext': '2mg',
+        'typ': ['-t','2mg','-w','nib']
+    }
+}
 
 if len(sys.argv)!=4:
     print('usage: python '+sys.argv[0]+' <img_type> <project_path> <distro_path>')
+    print('<distro_path> is the final node (enclosing folder is not created)')
     exit(1)
 img_fmt = sys.argv[1]
-if img_fmt!='woz' and img_fmt!='do':
-    print('format must be woz or do')
+if img_fmt not in fmt:
+    print('format must be in',fmt.keys())
     exit(1)
 home_path = pathlib.Path.home()
 realm_path = pathlib.Path(sys.argv[2])
 distro_path = pathlib.Path(sys.argv[3])
-
-def a2kit_beg(args):
-    '''run a2kit and pipe the output'''
-    compl = subprocess.run(['a2kit']+args,capture_output=True,text=False)
-    if compl.returncode>0:
-        print(compl.stderr)
-        exit(1)
-    return compl.stdout
-def a2kit_pipe(args,pipe_in):
-    '''run a2kit with piped input and output'''
-    compl = subprocess.run(['a2kit']+args,input=pipe_in,capture_output=True,text=False)
-    if compl.returncode>0:
-        print(compl.stderr)
-        exit(1)
-    return compl.stdout
-def a2kit_end(args,pipe_in):
-    '''run a2kit with piped input and terminate output'''
-    compl = subprocess.run(['a2kit']+args,input=pipe_in,text=False)
-    if compl.returncode>0:
-        print(compl.stderr)
-        exit(1)
-    return compl.stdout
 
 bas_dos_folder = realm_path / 'basic-dos33'
 bas_com_folder = realm_path / 'basic-common'
@@ -56,10 +55,10 @@ maplist = pathlib.Path.glob(map_folder , '*')
 xmaplist = pathlib.Path.glob(xmap_folder , '*')
 
 disk_path = (
-    distro_path / ('realm-dos33-master.'+img_fmt),
-    distro_path / ('realm-dos33-dungeon.'+img_fmt),
-    distro_path / ('realm-dos33-monster.'+img_fmt),
-    distro_path / ('realm-dos33-setup.'+img_fmt)
+    distro_path / ('realm-dos33-master.'+fmt[img_fmt]['ext']),
+    distro_path / ('realm-dos33-dungeon.'+fmt[img_fmt]['ext']),
+    distro_path / ('realm-dos33-monster.'+fmt[img_fmt]['ext']),
+    distro_path / ('realm-dos33-setup.'+fmt[img_fmt]['ext'])
 )
 
 map_addr = str(0x8000)
@@ -111,16 +110,16 @@ text_files = [
 
 # Create the blank disk images, some bootable, some with noboot message
 
-if img_fmt=='woz':
-    img_fmt = 'woz2'
+mkdsk_args = ['mkdsk','-o','dos33','-v','254'] + fmt[img_fmt]['typ']
+
 print('creating disk images')
-a2kit_beg(['mkdsk','-d',disk_path[0],'-o','dos33','-t',img_fmt,'-v','254','-b'])
-a2kit_beg(['mkdsk','-d',disk_path[1],'-o','dos33','-t',img_fmt,'-v','254'])
-a2kit_beg(['mkdsk','-d',disk_path[2],'-o','dos33','-t',img_fmt,'-v','254'])
-a2kit_beg(['mkdsk','-d',disk_path[3],'-o','dos33','-t',img_fmt,'-v','254','-b'])
-noboot_message = a2kit_beg(['get','-f',mc_folder/'NOBOOT#060800'])
-a2kit_end(['put','-t','sec','-f','0,0,0','-d',disk_path[1]], noboot_message)
-a2kit_end(['put','-t','sec','-f','0,0,0','-d',disk_path[2]], noboot_message)
+a2kit.beg(mkdsk_args + ['-d',disk_path[0],'-b'])
+a2kit.beg(mkdsk_args + ['-d',disk_path[1]])
+a2kit.beg(mkdsk_args + ['-d',disk_path[2]])
+a2kit.beg(mkdsk_args + ['-d',disk_path[3],'-b'])
+noboot_message = a2kit.beg(['get','-f',mc_folder/'NOBOOT#060800'])
+a2kit.end(['put','-t','sec','-f','0,0,0','-d',disk_path[1]], noboot_message)
+a2kit.end(['put','-t','sec','-f','0,0,0','-d',disk_path[2]], noboot_message)
 
 # Deploy BASIC programs
 for dict in bas_files:
@@ -129,9 +128,9 @@ for dict in bas_files:
         addr0 = 0x800
     else:
         addr0 = dict['load']
-    src = a2kit_beg(['get','-f',dict['folder']/(dict['name']+'.bas')])
+    src = a2kit.beg(['get','-f',dict['folder']/(dict['name']+'.bas')])
     # minify step could be added here
-    tok = a2kit_pipe(['tokenize','-t','atxt','-a',str(addr0+1)], src)
+    tok = a2kit.pipe(['tokenize','-t','atxt','-a',str(addr0+1)], src)
     if dict['name']=='LAUNCH':
         max_len = 0x37ff
     elif dict['name']=='FINAL':
@@ -147,56 +146,56 @@ for dict in bas_files:
         exit(1)
     for disk_count in dict['disks']:
         if dict['load']==None:
-            a2kit_end(['put','-t','atok','-f',dict['name'],'-d',disk_path[disk_count]], tok)
+            a2kit.end(['put','-t','atok','-f',dict['name'],'-d',disk_path[disk_count]], tok)
         else:
             # this is the faux binary that allows us to BLOAD applesoft tokens
-            a2kit_end(['put','-t','bin','-f',dict['name'],'-a',str(addr0+1),'-d',disk_path[disk_count]], tok)
+            a2kit.end(['put','-t','bin','-f',dict['name'],'-a',str(addr0+1),'-d',disk_path[disk_count]], tok)
     print('program length',len(tok))
 
 # Deploy machine code sprites and pics
 for dict in bin_files:
     name = dict['name'].split('#')[0]
     print('processing',name)
-    obj = a2kit_beg(['get','-f',dict['folder']/dict['name']])
+    obj = a2kit.beg(['get','-f',dict['folder']/dict['name']])
     for disk_count in dict['disks']:
-        a2kit_end(['put','-t','bin','-f',name,'-a',str(dict['load']),'-d',disk_path[disk_count]], obj)
+        a2kit.end(['put','-t','bin','-f',name,'-a',str(dict['load']),'-d',disk_path[disk_count]], obj)
 
 # Deploy text files
 for dict in text_files:
     print('processing',dict['name'])
-    txt = a2kit_beg(['get','-f',dict['folder']/(dict['name']+'.TXT')])
+    txt = a2kit.beg(['get','-f',dict['folder']/(dict['name']+'.TXT')])
     for disk_count in dict['disks']:
-        a2kit_end(['put','-t','txt','-f',dict['name'],'-d',disk_path[disk_count]], txt)
+        a2kit.end(['put','-t','txt','-f',dict['name'],'-d',disk_path[disk_count]], txt)
 
 # Deploy maps
 for path in maplist:
     name = path.name.split('#')[0]
     print('processing',name)
-    obj = a2kit_beg(['get','-f',path])
-    a2kit_end(['put','-t','bin','-f',name,'-a',map_addr,'-d',disk_path[0]], obj)
+    obj = a2kit.beg(['get','-f',path])
+    a2kit.end(['put','-t','bin','-f',name,'-a',map_addr,'-d',disk_path[0]], obj)
     if name=="ARRINEA":
-        a2kit_end(['put','-t','bin','-f',name,'-a',map_addr,'-d',disk_path[3]], obj)
+        a2kit.end(['put','-t','bin','-f',name,'-a',map_addr,'-d',disk_path[3]], obj)
 
 # Deploy xmaps
 for path in xmaplist:
     name = path.name.split('#')[0]
     print('processing',name)
-    obj = a2kit_beg(['get','-f',path])
-    a2kit_end(['put','-t','bin','-f',name,'-a',map_addr,'-d',disk_path[1]], obj)
+    obj = a2kit.beg(['get','-f',path])
+    a2kit.end(['put','-t','bin','-f',name,'-a',map_addr,'-d',disk_path[1]], obj)
     if name in ["ABYSS","FONKRAKIS","WORNOTH"]:
-        a2kit_end(['put','-t','bin','-f',name,'-a',map_addr,'-d',disk_path[3]], obj)
+        a2kit.end(['put','-t','bin','-f',name,'-a',map_addr,'-d',disk_path[3]], obj)
 
 # Deploy artwork
 for path in artlist:
     name = path.name.split('#')[0]
     print('processing',name)
-    obj = a2kit_beg(['get','-f',path])
-    a2kit_end(['put','-t','bin','-f',name,'-a',art_addr,'-d',disk_path[2]], obj)
+    obj = a2kit.beg(['get','-f',path])
+    a2kit.end(['put','-t','bin','-f',name,'-a',art_addr,'-d',disk_path[2]], obj)
 
 # Change greeting program to GUTEN TAG
 # (for old time's sake)
-block = list(a2kit_beg(['get','-t','block','-f','25','-d',disk_path[0]]))
+block = list(a2kit.beg(['get','-t','block','-f','25','-d',disk_path[0]]))
 for i,char in enumerate('GUTEN TAG'):
     block[0x75+i] = ord(char) + 128
-a2kit_end(['put','-t','block','-f','25','-d',disk_path[0]], bytes(block))
-a2kit_end(['put','-t','block','-f','25','-d',disk_path[3]], bytes(block))
+a2kit.end(['put','-t','block','-f','25','-d',disk_path[0]], bytes(block))
+a2kit.end(['put','-t','block','-f','25','-d',disk_path[3]], bytes(block))

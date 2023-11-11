@@ -1,45 +1,53 @@
-import subprocess
 import pathlib
 import sys
 import platform
+import a2kit
 
-pyvers = platform.python_version_tuple()
-if int(pyvers[0])<3 or int(pyvers[1])<8:
-    print('script requires python 3.8 or higher')
+if not a2kit.chk_vers((1,8,0),(2,4,2)):
     exit(1)
+
+fmt = {
+    'woz': {
+        'ext': 'woz',
+        'typ': ['-t','woz2'],
+    },
+    'nib': {
+        'ext': 'nib',
+        'typ': ['-t','nib'],
+    },
+    'do': {
+        'ext': 'do',
+        'typ': ['-t','do'],
+    },
+    'po': {
+        'ext': 'po',
+        'typ': ['-t','po'],
+    },
+    '2mg-do': {
+        'ext': '2mg',
+        'typ': ['-t','2mg','-w','do']
+    },
+    '2mg-po': {
+        'ext': '2mg',
+        'typ': ['-t','2mg','-w','po']
+    },
+    '2mg-nib': {
+        'ext': '2mg',
+        'typ': ['-t','2mg','-w','nib']
+    }
+}
 
 if len(sys.argv)!=4:
     print('usage: python '+sys.argv[0]+' <img_type> <project_path> <distro_path>')
+    print('<distro_path> is the final node (enclosing folder is not created)')
     exit(1)
 img_fmt = sys.argv[1]
-if img_fmt!='woz' and img_fmt!='do':
-    print('format must be woz or do')
+if img_fmt not in fmt:
+    print('format must be in',fmt.keys())
     exit(1)
 home_path = pathlib.Path.home()
 realm_path = pathlib.Path(sys.argv[2])
 distro_path = pathlib.Path(sys.argv[3])
-
-def a2kit_beg(args):
-    '''run a2kit and pipe the output'''
-    compl = subprocess.run(['a2kit']+args,capture_output=True,text=False)
-    if compl.returncode>0:
-        print(compl.stderr)
-        exit(1)
-    return compl.stdout
-def a2kit_pipe(args,pipe_in):
-    '''run a2kit with piped input and output'''
-    compl = subprocess.run(['a2kit']+args,input=pipe_in,capture_output=True,text=False)
-    if compl.returncode>0:
-        print(compl.stderr)
-        exit(1)
-    return compl.stdout
-def a2kit_end(args,pipe_in):
-    '''run a2kit with piped input and terminate output'''
-    compl = subprocess.run(['a2kit']+args,input=pipe_in,text=False)
-    if compl.returncode>0:
-        print(compl.stderr)
-        exit(1)
-    return compl.stdout
 
 fimg_folder = realm_path / 'file-images'
 bas_pro_folder = realm_path / 'basic-prodos'
@@ -57,9 +65,9 @@ maplist = pathlib.Path.glob(map_folder , '*')
 xmaplist = pathlib.Path.glob(xmap_folder , '*')
 
 disk_path = [
-    distro_path / ('realm-install-1.' + img_fmt),
-    distro_path / ('realm-install-2.' + img_fmt),
-    distro_path / ('realm-install-3.' + img_fmt)
+    distro_path / ('realm-install-1.' + fmt[img_fmt]['ext']),
+    distro_path / ('realm-install-2.' + fmt[img_fmt]['ext']),
+    distro_path / ('realm-install-3.' + fmt[img_fmt]['ext'])
 ]
 
 art_addr = str(0x6d00)
@@ -111,37 +119,35 @@ PROG/
 
 # Create bootable 5.25 inch image
 
-if img_fmt=='woz':
-    img_fmt = 'woz2'
 dsk = disk_path[0]
-a2kit_beg(['mkdsk','-d',dsk,'-o','prodos','-t',img_fmt,'-v','REALM.INSTALL1','-k','5.25in'])
-prodos_img = a2kit_beg(['get','-f',fimg_folder/'prodos.json'])
-a2kit_end(['put','-f','PRODOS','-t','any','-d',dsk], prodos_img)
-basic_img = a2kit_beg(['get','-f',fimg_folder/'basic.system.json'])
-a2kit_end(['put','-f','BASIC.SYSTEM','-t','any','-d',dsk], basic_img)
-startup_txt = a2kit_beg(['get','-f',bas_pro_folder/'INSTALL.bas'])
-startup_tok = a2kit_pipe(['tokenize','-t','atxt','-a','2049'], startup_txt)
-a2kit_end(['put','-f','STARTUP','-t','atok','-d',dsk], startup_tok)
-a2kit_beg(['mkdir','-d',dsk,'-f','ITEMS'])
+a2kit.beg(['mkdsk','-d',dsk,'-o','prodos','-v','REALM.INSTALL1','-k','5.25in']+fmt[img_fmt]['typ'])
+prodos_img = a2kit.beg(['get','-f',fimg_folder/'prodos.json'])
+a2kit.end(['put','-f','PRODOS','-t','any','-d',dsk], prodos_img)
+basic_img = a2kit.beg(['get','-f',fimg_folder/'basic.system.json'])
+a2kit.end(['put','-f','BASIC.SYSTEM','-t','any','-d',dsk], basic_img)
+startup_txt = a2kit.beg(['get','-f',bas_pro_folder/'INSTALL.bas'])
+startup_tok = a2kit.pipe(['tokenize','-t','atxt','-a','2049'], startup_txt)
+a2kit.end(['put','-f','STARTUP','-t','atok','-d',dsk], startup_tok)
+a2kit.beg(['mkdir','-d',dsk,'-f','ITEMS'])
 
 # Create the 2 data disks
 
 for i in range(2,4):
     dsk = disk_path[i-1]
-    a2kit_beg(['mkdsk','-d',dsk,'-o','prodos','-t',img_fmt,'-v','REALM.INSTALL'+str(i),'-k','5.25in'])
-    noboot_message = a2kit_beg(['get','-f',mc_folder/'NOBOOT.INST#060800'])
-    a2kit_end(['put','-t','sec','-f','0,0,0','-d',dsk], noboot_message)
-    a2kit_beg(['mkdir','-d',dsk,'-f','ITEMS'])
+    a2kit.beg(['mkdsk','-d',dsk,'-o','prodos','-v','REALM.INSTALL'+str(i),'-k','5.25in']+fmt[img_fmt]['typ'])
+    noboot_message = a2kit.beg(['get','-f',mc_folder/'NOBOOT.INST#060800'])
+    a2kit.end(['put','-t','sec','-f','0,0,0','-d',dsk], noboot_message)
+    a2kit.beg(['mkdir','-d',dsk,'-f','ITEMS'])
 
 # Root files
 
 dsk = disk_path[0]
-startup_txt = a2kit_beg(['get','-f',bas_pro_folder/'STARTUP.bas'])
-startup_tok = a2kit_pipe(['tokenize','-t','atxt','-a','2049'], startup_txt)
-a2kit_end(['put','-f','ITEMS/START.REALM','-t','atok','-d',dsk], startup_tok)
-f = a2kit_beg(['get','-f',realm_path/'TITLE.PIC#062000'])
-a2kit_end(['put','-f','ITEMS/TITLE.PIC','-t','bin','-a',screen_addr,'-d',dsk], f)
-a2kit_end(['put','-f','ITEMS/DD','-t','txt','-d',dsk], bytes(config_file,encoding='utf8'))
+startup_txt = a2kit.beg(['get','-f',bas_pro_folder/'STARTUP.bas'])
+startup_tok = a2kit.pipe(['tokenize','-t','atxt','-a','2049'], startup_txt)
+a2kit.end(['put','-f','ITEMS/START.REALM','-t','atok','-d',dsk], startup_tok)
+f = a2kit.beg(['get','-f',realm_path/'TITLE.PIC#062000'])
+a2kit.end(['put','-f','ITEMS/TITLE.PIC','-t','bin','-a',screen_addr,'-d',dsk], f)
+a2kit.end(['put','-f','ITEMS/DD','-t','txt','-d',dsk], bytes(config_file,encoding='utf8'))
 
 # Deploy machine code and sprites
 dsk = disk_path[0]
@@ -150,8 +156,8 @@ for dict in bin_files:
     print('processing',name)
     src_path = dict['folder']/dict['name']
     dst_path = 'ITEMS/'+name
-    obj = a2kit_beg(['get','-f',src_path])
-    a2kit_end(['put','-t','bin','-f',dst_path,'-a',str(dict['load']),'-d',dsk], obj)
+    obj = a2kit.beg(['get','-f',src_path])
+    a2kit.end(['put','-t','bin','-f',dst_path,'-a',str(dict['load']),'-d',dsk], obj)
 
 # Deploy maps
 dsk = disk_path[0]
@@ -159,8 +165,8 @@ for src_path in maplist:
     name = src_path.name.split('#')[0]
     print('processing',name)
     dst_path = 'ITEMS/'+name
-    obj = a2kit_beg(['get','-f',src_path])
-    a2kit_end(['put','-t','bin','-f',dst_path,'-a',map_addr,'-d',dsk], obj)
+    obj = a2kit.beg(['get','-f',src_path])
+    a2kit.end(['put','-t','bin','-f',dst_path,'-a',map_addr,'-d',dsk], obj)
 
 # Deploy xmaps
 dsk = disk_path[1]
@@ -168,8 +174,8 @@ for src_path in xmaplist:
     name = src_path.name.split('#')[0]
     print('processing',name)
     dst_path = 'ITEMS/'+name
-    obj = a2kit_beg(['get','-f',src_path])
-    a2kit_end(['put','-t','bin','-f',dst_path,'-a',map_addr,'-d',dsk], obj)
+    obj = a2kit.beg(['get','-f',src_path])
+    a2kit.end(['put','-t','bin','-f',dst_path,'-a',map_addr,'-d',dsk], obj)
 
 # Deploy artwork
 dsk = disk_path[2]
@@ -177,8 +183,8 @@ for src_path in artlist:
     name = src_path.name.split('#')[0]
     print('processing',name)
     dst_path = 'ITEMS/'+name
-    obj = a2kit_beg(['get','-f',src_path])
-    a2kit_end(['put','-t','bin','-f',dst_path,'-a',art_addr,'-d',dsk], obj)
+    obj = a2kit.beg(['get','-f',src_path])
+    a2kit.end(['put','-t','bin','-f',dst_path,'-a',art_addr,'-d',dsk], obj)
 
 # Deploy text files
 dsk = disk_path[2]
@@ -186,8 +192,8 @@ for dict in text_files:
     print('processing',dict['name'])
     src_path = dict['folder']/(dict['name']+'.TXT')
     dst_path = 'ITEMS/'+dict['name']
-    txt = a2kit_beg(['get','-f',src_path])
-    a2kit_end(['put','-t','txt','-f',dst_path,'-d',dsk], txt)
+    txt = a2kit.beg(['get','-f',src_path])
+    a2kit.end(['put','-t','txt','-f',dst_path,'-d',dsk], txt)
 
 # Deploy BASIC programs - spread across disks
 
@@ -200,9 +206,9 @@ for dict in prog_files:
         addr0 = 0x800
     else:
         addr0 = dict['load']
-    src = a2kit_beg(['get','-f',src_path])
-    min = a2kit_pipe(['minify','-t','atxt'], src)
-    tok = a2kit_pipe(['tokenize','-t','atxt','-a',str(addr0+1)], min)
+    src = a2kit.beg(['get','-f',src_path])
+    min = a2kit.pipe(['minify','-t','atxt','--level','3'], src)
+    tok = a2kit.pipe(['tokenize','-t','atxt','-a',str(addr0+1)], min)
     if dict['name']=='LAUNCH':
         max_len = 0x37ff
     elif dict['name']=='FINAL':
@@ -213,8 +219,8 @@ for dict in prog_files:
         print('ERROR: program',dict['name'],'is too long')
         exit(1)
     if dict['load']==None:
-        a2kit_end(['put','-t','atok','-f',dst_path,'-d',dsk], tok)
+        a2kit.end(['put','-t','atok','-f',dst_path,'-d',dsk], tok)
     else:
         # this is the faux binary that allows us to BLOAD applesoft tokens
-        a2kit_end(['put','-t','bin','-f',dst_path,'-a',str(addr0+1),'-d',dsk], tok)
+        a2kit.end(['put','-t','bin','-f',dst_path,'-a',str(addr0+1),'-d',dsk], tok)
     print('program length',len(tok))

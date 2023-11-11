@@ -1,0 +1,23 @@
+{
+    "woz2": {
+        "info": {
+            "compatible_hardware": "7e00",
+            "required_ram": "3000"
+        },
+        "meta": {
+            "title": "Realm",
+            "subtitle": "Rays of Nightmare",
+            "developer": "Daniel Gordon",
+            "copyright": "GPL 3.0 license",
+            "version": "",
+            "language": "English",
+            "requires_ram": "48K",
+            "requires_rom": "Applesoft",
+            "apple2_requires": "Color TV recommended",
+            "requires_machine": "2+|2e|2c|2e+|2gs|2c+",
+            "side": "",
+            "side_name": "",
+            "notes": "Realm was mostly developed in the mid 1980's, but was never released until 2021."
+        }
+    }
+}
