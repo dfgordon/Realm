@@ -19,12 +19,10 @@ Error checking the BASIC programs
 1. Use the [Applesoft language server](https://github.com/dfgordon/vscode-language-applesoft) while editing
 
     * This will catch a lot of errors
-    * It is not aware of inter-program branching as of this writing
+    * It can identify certain problems with interprogram branching
 
 2. Run `verify.py`.  This carries out the following checks:
 
-    * Verify that line numbers are in order
-    * Verify that branches exist
     * Check for consistency of repeated code sections
     * Verifies the uniqueness of short-hand strings used in `COMBAT.bas`
 
@@ -40,4 +38,10 @@ When renumbering BASIC programs (to save space), the inter-program branching sch
 Deploy to Disk Images
 ---------------------
 
-All disk images can be deployed in seconds using `deploy-release.py`.  This calls `deploy-dos33.py`, `deploy-prodos.py`, and `deploy-installer`.  These in turn make heavy use of `a2kit`.  The [wiki](https://github.com/dfgordon/Realm/wiki) has more.
+All disk images can be deployed in seconds using `deploy.py`.  A typical invocation would be to navigate to the scripts directory and type
+
+```shell
+python deploy.py 1.5.1 .. .
+```
+
+This script relies on availability of an a2kit installation.  The [wiki](https://github.com/dfgordon/Realm/wiki) has more.

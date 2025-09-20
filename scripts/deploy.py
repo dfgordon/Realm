@@ -1,22 +1,28 @@
-'''Helper to prepare a final release for distribution.'''
+'''Create a final release for distribution.'''
 
 import sys
+sys.path.append('deploy_modules')
 import os
 import glob
 import pathlib
-import subprocess
-import a2kit
+import deploy_modules.a2kit as a2kit
 import json
+import deploy_modules.deploy_dos33 as deploy_dos33
+import deploy_modules.deploy_prodos as deploy_prodos
+import deploy_modules.deploy_installer as deploy_installer
+import deploy_modules.deploy_pack as packer
 
-if not a2kit.chk_vers((1,8,0),(2,4,2)):
-    exit(1)
+# Pre-Deployment setup and error checking
+
+a2kit.verify_py((3,12,0),(4,0,0))
+a2kit.verify_a2((4,0,0),(5,0,0))
 
 dos3x_fmt = ['woz']
 prodos_fmt = ['po','woz']
 installer_fmt = ['woz']
 
 if len(sys.argv)!=4:
-    print('Usage: release.py <vers> <proj_path> <distro_path>')
+    print('Usage: ',sys.argv[0],' <vers> <proj_path> <distro_path>')
     print('<vers> should be in the form x.x.x')
     print('<proj_path> is the main Realm project directory')
     print('<distro_path> should not include the last node (Realm-vxxx is created)')
@@ -49,30 +55,31 @@ with open(project_path / 'basic-dos33' / 'LAUNCH.bas') as f:
 
 with open(project_path / 'basic-prodos' / 'LAUNCH.bas') as f:
     if not "REALM V" + vers in f.read():
-        raise ValueError("version in DOS 3.3 LAUNCH.bas was not consistent")
+        raise ValueError("version in ProDOS LAUNCH.bas was not consistent")
 
 with open(project_path / 'basic-prodos' / 'INSTALL.bas') as f:
     if not "INSTALLER V" + vers in f.read():
         raise ValueError("version in INSTALL.bas was not consistent")
 
+# Pack-up everything into a2kit file images.
+# This task will typically take the longest.
+
+dos33,prodos = packer.pack_all(project_path)
+
+# Create all disk images
+
 for fmt in dos3x_fmt:
-    print("Deploy DOS 3.3",fmt,"disks...")
-    compl = subprocess.run(['python','deploy-dos33.py',fmt,project_path,distro_path])
-    if compl.returncode>0:
-        raise RuntimeError('subprocess failed')
+    deploy_dos33.deploy(fmt,project_path,distro_path,dos33)
 
 for fmt in prodos_fmt:
-    print("Deploy ProDOS",fmt,"volume...")
-    compl = subprocess.run(['python','deploy-prodos.py',fmt,project_path,distro_path])
-    if compl.returncode>0:
-        raise RuntimeError('subprocess failed')
+    deploy_prodos.deploy(fmt,project_path,distro_path,prodos)
 
 for fmt in installer_fmt:
-    print("Deploy Installer",fmt,"disks...")
-    compl = subprocess.run(['python','deploy-installer.py','woz',project_path,distro_path])
-    if compl.returncode>0:
-        raise RuntimeError('subprocess failed')
+    deploy_installer.deploy(fmt,project_path,distro_path,prodos)
 
+# Add disk image metadata
+
+print()
 print("Add version designations and metadata")
 unversioned = glob.glob(str(distro_path/"*"))
 with open('meta.json') as f:
@@ -123,5 +130,5 @@ for f in unversioned:
         filt = ['-f','/woz2/']
     else:
         filt = ['-f','/'+ext+'/']
-    a2kit.end(['put','-d',f,'-t','meta']+filt,bytes(json.dumps(meta),'utf8'))
+    a2kit.cmd(['put','-d',f,'-t','meta']+filt,json.dumps(meta).encode('utf-8'))
     os.rename(f,f[:-len(ext)-1]+"-"+v+"."+ext)

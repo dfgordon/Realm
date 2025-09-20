@@ -1,46 +1,8 @@
-'''Checks for duplicate or out of order line numbers, branches to non-existant lines,
-and consistency of certain blocks of code across the different programs.
-Also checks that inventory short-hand satisfies uniqueness.'''
+'''Checks consistency of certain blocks of code across the different programs.
+Also checks that inventory short-hand satisfies uniqueness.
+Various other checks are handled by a2kit language servers.'''
 
-import glob
 import re
-
-files = sorted(glob.glob("../basic-dos33/*.bas") + glob.glob("../basic-prodos/*.bas") + glob.glob("../basic-common/*.bas"))
-
-for path in files:
-
-    print('Checking',path.split('/')[-1].split('.')[0])
-
-    with open(path,'r') as f:
-        text = f.read()
-    lines = text.split('\n')
-
-    nums = [-1]
-    for line in lines:
-        words = line.split()
-        if len(words)>0:
-            try:
-                nums += [int(line.split()[0])]
-                if nums[-1]<=nums[-2]:
-                    print('Problem on line',nums[-1])
-                    print('Fix this line and the run again.')
-                    exit(1)
-            except ValueError:
-                print('WARNING: first word not a number')
-                print(line)
-
-    nums = nums[1:]
-    str_line_nums = list(map(str,nums))
-
-    # We have to do the following by line so we can exclude branches to another program
-    for line in lines:
-        external_branch = re.search(r'POKE\s+103,',line)
-        if not external_branch:
-            matches = re.findall(r'[\s:](GOTO|GOSUB|THEN)\s+([0-9]+)',line)
-            for s in matches:
-                if s[1] not in str_line_nums:
-                    print(s[0],'non existant line',s[1])
-                    exit(1)
 
 # Check for consistencies across files
 

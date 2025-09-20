@@ -95,8 +95,6 @@ COUT     EQU   $FDED
 
 * MACROS *****************************
 
-         DO    0
-
 * SIMPLE MATH
 
 INC16    MAC
@@ -354,9 +352,6 @@ ADVMROW  MAC
          LSR
          ADDAW ZPTR
          <<<
-
-         DO    1
-
 
 * SUBROUTINES ************************
 

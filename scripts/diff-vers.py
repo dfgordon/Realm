@@ -4,28 +4,26 @@ comparing one version to another.
 
 This was developed to help verify the new a2kit based deploy scripts
 against the previous method based on Virtual II.
-A limitation is that we opted to use `a2kit minify` on the ProDOS version,
-which makes the diff with the prior version large.
-On the other hand, the DOS version was left un-minified,
-and it shows no difference anywhere except for the version number.
 
 This can also be used to test whether different a2kit versions are
-producing consistent output.'''
+producing consistent output.  N.b. if minification has changed
+the diff can be very large.'''
 
 import pathlib
 import sys
+sys.path.append('deploy_modules')
 import difflib
 import json
-import a2kit
+import deploy_modules.a2kit as a2kit
 
-if not a2kit.chk_vers((1,8,0),(2,4,2)):
-    exit(1)
+a2kit.verify_py((3,8,0),(5,0,0))
+a2kit.verify_a2((3,8,0),(5,0,0))
 
 issue_count = 0
 
 if len(sys.argv)!=6:
     print('usage: python '+sys.argv[0]+' <base_path> <old_v> <new_v> <old_ext> <new_ext>')
-    print('ex: python diff-vers.py . 150 151 woz 2mg')
+    print('ex: python '+sys.argv[0]+' . 150 151 woz 2mg')
     exit(1)
 base_path = pathlib.Path(sys.argv[1])
 v1 = sys.argv[2]
@@ -75,8 +73,8 @@ disk_name = (
 
 def compare_tokens(v1_disk,v2_disk,nibbles_to_skip,path):
     global issue_count
-    tok1 = json.loads(a2kit.beg(['get','-d',v1_disk,'-t','any','-f',path],True))
-    tok2 = json.loads(a2kit.beg(['get','-d',v2_disk,'-t','any','-f',path],True))
+    tok1 = json.loads(a2kit.cmd(['get','-d',v1_disk,'-t','any','-f',path]).decode('utf-8'))
+    tok2 = json.loads(a2kit.cmd(['get','-d',v2_disk,'-t','any','-f',path]).decode('utf-8'))
     for k in tok1:
         if k not in ['created','modified','chunks']:
             if tok1[k] != tok2[k]:
@@ -172,8 +170,8 @@ def check_cats(cat1,cat2,disk,row1,row2,col1,col2):
 for d in range(0,4):
     v1_disk = v1_path / (disk_name[d] + "-v" + v1 + "." + x1)
     v2_disk = v2_path / (disk_name[d] + "-v" + v2 + "." + x2)
-    cat1 = a2kit.beg(['catalog','-d',v1_disk],True).splitlines()
-    cat2 = a2kit.beg(['catalog','-d',v2_disk],True).splitlines()
+    cat1 = a2kit.cmd(['catalog','-d',v1_disk]).decode('utf-8').splitlines()
+    cat2 = a2kit.cmd(['catalog','-d',v2_disk]).decode('utf-8').splitlines()
     check_cats(cat1,cat2,disk_name[d],3,None,7,None)
 
 # See if installer catalogs contain the same files
@@ -181,8 +179,8 @@ for d in range(0,4):
 for d in range(0,3):
     v1_disk = v1_path / ("realm-install-"+str(d+1)+"-v" + v1 + ".woz")
     v2_disk = v2_path / ("realm-install-"+str(d+1)+"-v" + v2 + ".woz")
-    cat1 = a2kit.beg(['catalog','-d',v1_disk,'-f','items'],True).splitlines()
-    cat2 = a2kit.beg(['catalog','-d',v2_disk,'-f','items'],True).splitlines()
+    cat1 = a2kit.cmd(['catalog','-d',v1_disk,'-f','items']).decode('utf-8').splitlines()
+    cat2 = a2kit.cmd(['catalog','-d',v2_disk,'-f','items']).decode('utf-8').splitlines()
     check_cats(cat1,cat2,'realm-install-'+str(d+1)+'/items',5,-3,0,16)
 
 # See if ProDOS catalogs contain the same files
@@ -192,12 +190,12 @@ dirs = ['REALM','REALM/PROG','REALM/BIN','REALM/MAPS','REALM/XMAPS','REALM/MONST
 
 v1_disk = v1_path / ('realm-prodos-v' + v1 + ".po")
 v2_disk = v2_path / ('realm-prodos-v' + v2 + ".po")
-cat1 = a2kit.beg(['catalog','-d',v1_disk],True).splitlines()
-cat2 = a2kit.beg(['catalog','-d',v2_disk],True).splitlines()
+cat1 = a2kit.cmd(['catalog','-d',v1_disk]).decode('utf-8').splitlines()
+cat2 = a2kit.cmd(['catalog','-d',v2_disk]).decode('utf-8').splitlines()
 check_cats(cat1,cat2,'realm-prodos',5,-3,0,16)
 for dir in dirs:
-    cat1 = a2kit.beg(['catalog','-d',v1_disk,'-f',dir],True).splitlines()
-    cat2 = a2kit.beg(['catalog','-d',v2_disk,'-f',dir],True).splitlines()
+    cat1 = a2kit.cmd(['catalog','-d',v1_disk,'-f',dir]).decode('utf-8').splitlines()
+    cat2 = a2kit.cmd(['catalog','-d',v2_disk,'-f',dir]).decode('utf-8').splitlines()
     check_cats(cat1,cat2,'realm-prodos/'+dir,5,-3,0,16)
 
 print()
