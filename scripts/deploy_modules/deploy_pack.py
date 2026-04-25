@@ -26,6 +26,14 @@ BIN/
 PROG/
 '''
 
+def strip_fake_chains(src: bytes):
+    '''Delicate routine to strip fake chains, simply finds line 63000
+    and strips everything that follows.'''
+    loc = src.find("\n63000".encode('utf-8'))
+    if loc == -1:
+        return src
+    return src[:loc+1]
+
 def get_tokens(pth: pathlib.Path, dict: dict):
     '''Get minified tokens, works in all cases'''
     print('processing',dict['name'])
@@ -33,7 +41,8 @@ def get_tokens(pth: pathlib.Path, dict: dict):
     # so the minifier knows not to combine them with preceding lines.
     line_guards = "0,1,5,10,100,8900,8910,25000"
     src = a2kit.cmd(['get','-f',pth/(dict['name']+'.bas')])
-    min = a2kit.cmd(['minify','-t','atxt','--level','3','--extern',line_guards], src)
+    stripped = strip_fake_chains(src)
+    min = a2kit.cmd(['minify','-t','atxt','--level','3','--extern',line_guards], stripped)
     tok = a2kit.cmd(['tokenize','-t','atxt','-a',str(dict['load']+1)], min)
     if len(tok) > dict['max']:
         print('ERROR: program',dict['name'],'is too long')

@@ -51,3 +51,9 @@
 9110  ONERR  GOTO 9200
 9120  PRINT: PRINT  CHR$(4);"VERIFY DISK";D;",S";WS%(D);",D";WD%(D);",V";WV%(D): POKE 216,0: RETURN
 9200  HOME : VTAB 21: PRINT "INSERT ";DL$(D);" DISK IN S";WS%(D);"D";WD%(D);"- ";: GET A$: CALL 768: PRINT : RESUME
+
+63000 REM fake chains so LSP client can properly analyze variables
+63010 print chr$(4);"chain TOWN"
+63020 print chr$(4);"chain basic-dos33/OUTSIDE"
+63030 print chr$(4);"chain basic-dos33/DUNGEON"
+63040 print chr$(4);"chain COMBAT"

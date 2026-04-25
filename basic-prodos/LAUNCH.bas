@@ -523,3 +523,6 @@
 9930  IF PEEK(222) = 6 OR PEEK(222) = 7 THEN CALL -3288: GOTO 6330
 9940  GOTO 9900
 9950  CALL -3288: PRINT "RAM DISK ERROR. PROCEEDING WITHOUT. ";: GET A$: RB$ = "BIN" + "/": RD$ = "PROG" + "/": GOTO 9140
+
+63000 REM fake chains so LSP client can properly analyze variables
+63010 print chr$(4);"chain basic-prodos/OUTSIDE"

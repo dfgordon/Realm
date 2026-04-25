@@ -351,3 +351,8 @@
 40001  IF M > 0 THEN  RETURN
 50000  HOME : VTAB 21: PRINT "YOUR PARTY IS ELIMINATED!"
 50001  GOTO 50001
+
+63000 REM fake chains so LSP client can properly analyze variables
+63010 print chr$(4);"chain basic-dos33/CHAIN"
+63020 print chr$(4);"chain HIGH.PRIEST"
+63030 print chr$(4);"chain basic-dos33/FINAL"

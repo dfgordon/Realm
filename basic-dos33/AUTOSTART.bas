@@ -143,3 +143,6 @@
 10230  PRINT "DISK IS CORRUPTED."
 10240  PRINT "WE EXPECTED TO FIND ";NA$: PRINT "BUT THEY ARE NOT HERE."
 10250  END
+
+63000 REM fake chains so LSP client can properly analyze variables
+63010 print chr$(4);"chain basic-dos33/OUTSIDE"

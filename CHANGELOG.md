@@ -16,3 +16,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### New Features
 
 * BASIC is more aggressively minified
+* Fake chains for better language analysis

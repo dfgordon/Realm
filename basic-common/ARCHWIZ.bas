@@ -27,3 +27,6 @@
 8910 GOTO 7750
 
 30050  POKE 6,50: POKE 7,25: POKE 8,1: POKE 9,1: POKE 30,1: CALL 852: GET A$: RETURN
+
+63000 REM fake chains so LSP client can properly analyze variables
+63010 print chr$(4);"chain TOWN"

@@ -50,3 +50,9 @@
 9110  ONERR  GOTO 9200
 9120  PRINT: PRINT  CHR$(4);"VERIFY START.REALM": POKE 216,0: RETURN
 9200  HOME : VTAB 21: PRINT "PLEASE RESTORE DISK- ";: GET A$: CALL 768: PRINT : RESUME
+
+63000 REM fake chains so LSP client can properly analyze variables
+63010 print chr$(4);"chain TOWN"
+63020 print chr$(4);"chain basic-prodos/OUTSIDE"
+63030 print chr$(4);"chain basic-prodos/DUNGEON"
+63040 print chr$(4);"chain COMBAT"

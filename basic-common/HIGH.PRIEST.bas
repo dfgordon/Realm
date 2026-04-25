@@ -38,3 +38,6 @@
 25000  POKE -16304,0: HOME: POKE 16384,0: POKE 103,1: POKE 104,64: XT = XT + 3: GOTO 25000
 
 30090  POKE 6,130: POKE 7,2: POKE 8,255: POKE 9,1: POKE 30,2: CALL 806: RETURN
+
+63000 REM fake chains so LSP client can properly analyze variables
+63010 print chr$(4);"chain DUNGEON"

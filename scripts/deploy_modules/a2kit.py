@@ -36,7 +36,7 @@ def pack_bin(dat: bytes, load_addr: int, path: str, os: str):
     return compl.stdout.decode('utf-8')
 
 def pack_tok(dat: bytes, path: str, os: str):
-    '''pack binary file into list of file images'''
+    '''pack BASIC tokens into list of file images'''
     compl = subprocess.run(['a2kit','pack','-t','atok','-f',path,'-o',os],input=dat,capture_output=True,text=False)
     if compl.returncode>0:
         print(compl.stderr)
